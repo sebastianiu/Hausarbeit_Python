@@ -7,14 +7,14 @@ Tutor: Stephan Fuehrer
 """
 
 """ Erfoderliche Paket importieren"""
-import sqlalchemy
-import sqlite3
+from sqlalchemy import create_engine, MetaData, Table, Column, Integer
+#import sqlite3
 import pandas
 import bokeh
 import matplotlib
 
-"""Klassen fÃ¼r die Tabellenstrukturen """
-class test():
+"""Klassen fuer die Tabellenstrukturen """
+class test:
     def __init__(self, x,y1):
         self.x = x
         self.y1 = x
@@ -39,39 +39,28 @@ class ergebnis(test):
 
 """ Definiere Klasse für Tabelle der idealen Funktionen  """
 class ideal(test):
-    pass
- 
+    pass 
 """  Ergänze Attribute y2 bis y50 """
 for i in range(2,51):
     setattr(ideal,f'y{i}',f'y{i}')
+
+
     
 
-
-
-        
+    
 
 """ Funktion zur Erzegung der Datenbank """
 def Datenbank_erzeugen(databasename):
 
-    database = databasename
-    connection = sqlite3.connect(f'{database}.db')
-    cursor = connection.cursor()       
-       
-    """ Tabellen erzeugen """
-    command1 = '''CREATE TABLE IF NOT EXISTS Test
-                (x1 INT, y1 INT)
-            '''  
-       
-    cursor.execute(command1)
-    
-    connection.close()
+    engine = create_engine('sqlite:///testdaten.db', echo = True)
+    meta = MetaData()           
 
 
 """ Funktion zum  Import der Daten aus CSV-File """
 #def Daten_Import ():
     
     
-#Datenbank_erzeugen("testdatenank")
+Datenbank_erzeugen("testdatenank")
 
 
     
