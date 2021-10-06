@@ -14,7 +14,60 @@ import bokeh
 import matplotlib
 
 """Klassen fuer die Tabellenstrukturen """
-class test:
+class testdaten(Table):
+    __tablename__ = 'test'
+    x = Column(Integer, primary_key=True)
+    y1 = Column(Integer)
+
+    __mapper_args__ = {
+        'polymorphic_on':type,
+        'polymorphic_identity':'employee'
+    }
+
+class trainingsdaten(Employee):
+    manager_data = Column(String(50))
+
+    __mapper_args__ = {
+        'polymorphic_identity':'manager'
+    }
+
+def Datenbank_erzeugen (Datenbanbname):
+    engine = create_engine(f'sqlite:///{Datenbanbname}.db', echo = True)
+    meta = MetaData()
+
+"""Klassen fuer die Tabellenstrukturen """
+class testdatentabelle(Table):
+    'testdaten',meta,
+    Column('x', Integer), 
+    Column('y1', Integer)
+ 
+
+class trainingsdatentabelle(testdatentabelle):
+    'trainingsdaten',meta,
+    Column('y2', Integer), 
+    Column('y3', Integer),
+    Column('y4', Integer)
+  
+
+train = testdatentabelle()
+test = trainingsdatentabelle()
+
+meta.create_all(engine)
+    
+
+    
+'''
+    'test', meta, 
+    Column('id', Integer, primary_key = True), 
+    Column('name', String), 
+    Column('lastname', String),
+    )
+
+'''    
+    
+'''
+ """Klassen fuer die Tabellenstrukturen """
+class test():
     def __init__(self, x,y1):
         self.x = x
         self.y1 = x
@@ -44,7 +97,7 @@ class ideal(test):
 for i in range(2,51):
     setattr(ideal,f'y{i}',f'y{i}')
 
-
+'''
     
 
     
@@ -60,7 +113,7 @@ def Datenbank_erzeugen(databasename):
 #def Daten_Import ():
     
     
-Datenbank_erzeugen("testdatenank")
+#Datenbank_erzeugen("testdatenank")
 
 
     
