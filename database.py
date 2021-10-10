@@ -22,10 +22,18 @@ def create_database_model(Datenbankname):
         Base = declarative_base()
         
         class testdaten(Base):
-            __tablename__ = 'testdaten'  
+            __tablename__ = 'testdaten' 
+            x = Column(Float,primary_key=True)
+            y1 = Column(Float)
+            y2 = Column(Float)
+            delta_y = Column(Float)
+            funkt_nr = Column(Float)
+            
+            '''
             recordid = Column(Integer,primary_key=True)
             x = Column(Float)
-            y = Column(Float)  
+            y = Column(Float)
+            '''
             
         class trainingsdaten(Base):
             __tablename__ = 'trainingsdaten'        
@@ -35,7 +43,7 @@ def create_database_model(Datenbankname):
             y2 = Column(Float)
             y3 = Column(Float)
             y4 = Column(Float)       
-            
+        '''    
         class ergebnisdaten(Base):
             __tablename__ = 'ergebnisdaten'        
             x = Column(Float,primary_key=True)
@@ -44,7 +52,7 @@ def create_database_model(Datenbankname):
             y2 = Column(Float)
             delta_y = Column(Float)
             funk_nr = Column(Float)
-            
+        '''    
         class ideale_funktionen(Base):
             __tablename__ = 'ideale_funktionen'  
             

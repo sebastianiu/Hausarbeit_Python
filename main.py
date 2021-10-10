@@ -10,12 +10,12 @@ from data_importer import datenimport
 from database import create_database_model 
 
 '''SQLite-Datenbank erzeugen'''
-create_database_model('db_hausarbeit')
+create_database_model('db_hausarbeit_python')
 
-'''Daten aus CSV auslesen und in Tabellen importieren'''
-datenimport('test.csv','testdaten','db_hausarbeit')
-datenimport('ideal.csv','ideale_funktionen','db_hausarbeit')
-datenimport('train.csv','trainingsdaten','db_hausarbeit')
+'''Trainingsdaten und Daten zu idealen Funtkionen aus CSV auslesen und in Tabellen importieren'''
+#datenimport('test.csv','testdaten','db_hausarbeit')
+datenimport('ideal.csv','ideale_funktionen','db_hausarbeit_python')
+datenimport('train.csv','trainingsdaten','db_hausarbeit_python')
 
 
 

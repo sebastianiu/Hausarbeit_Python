@@ -12,7 +12,7 @@ from os import path
 import sys
 
 def datenimport(file,table,database): 
-    
+    ''' Funktion zum Auslesen von Daten aus einer CSV-Datei und import in eine SQLLite-DB-Tabelle '''
     ''' Prüfen, ob datei im verzeichnis exitiert'''
     if path.exists(file):    
         '''Mit SQLite-Datenbank verbinden'''
