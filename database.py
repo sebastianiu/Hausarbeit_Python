@@ -1,138 +1,113 @@
-"""
-Programm fÃ¼r die Hausarbeit zum Kurs  DLMDWPMP01 - Programmieren mit Python
+# -*- coding: utf-8 -*-
+'''
+Programm fuer die Hausarbeit zum Kurs  DLMDWPMP01 - Programmieren mit Python
 
 Autor: Sebastian Kinnast Martikelnr.: 32112741
 
-Tutor: Stephan FÃ¼hrer
-"""
-
-from sqlalchemy import create_engine, MetaData, Table, Column, Integer
-from sqlalchemy.orm import declarative_base
-
-def Datenbank_erzeugen(Datenbankname):
-    """Engine-Objekt erzeugen """
-    engine = create_engine(f"sqlite+pysqlite:///{Datenbankname}.db",future = True, echo = True)
-    
-    """Base-Objekt als Baisis für Tabellenklassene rzeugen """
-    Base = declarative_base()
-    
-    """Tabellenklasse deklarieren"""
-    class testdaten(Base):
-        __tablename__ = 'testdaten'        
-        x = Column(Integer,primary_key=True)
-        y1 = Column(Integer)              
-        
-        '''
-        __mapper_args__ = {
-        'polymorphic_on':type,
-        'polymorphic_identity':'testdaten'
-        }
-        #re_trainingsdaten = relationship("trainingsdaten", back_populates="testdaten")
-        '''
-    class trainingsdaten(Base):
-        __tablename__ = 'trainingsdaten'
-        
-        x = Column(Integer,primary_key=True)
-        y1 = Column(Integer)
-        y2 = Column(Integer)
-        y3 = Column(Integer)
-        y4 = Column(Integer)  
-               
-    class ergebnisdaten(Base):
-        __tablename__ = 'ergebnisdaten'
-        
-        x = Column(Integer,primary_key=True)
-        y1 = Column(Integer)
-        y2 = Column(Integer)
-        delta_y = Column(Integer)
-        funk_nr = Column(Integer)
-      
-    class ideale_funktionen(Base):
-        __tablename__ = 'ideale_funktionen'
-        
-        x = Column(Integer,primary_key=True)
-        y1 = Column(Integer)
-        y2 = Column(Integer)
-        y3 = Column(Integer)
-        y4 = Column(Integer)
-        y5 = Column(Integer)
-        y6 = Column(Integer)
-        y7 = Column(Integer)
-        y8 = Column(Integer)
-        y9 = Column(Integer)
-        y10 = Column(Integer)
-        y11 = Column(Integer)
-        y12 = Column(Integer)
-        y13 = Column(Integer)
-        y14 = Column(Integer)
-        y15 = Column(Integer)
-        y16 = Column(Integer)
-        y17 = Column(Integer)
-        y18 = Column(Integer)
-        y19 = Column(Integer)
-        y20 = Column(Integer)
-        y21 = Column(Integer)
-        y22 = Column(Integer)
-        y23 = Column(Integer)
-        y24 = Column(Integer)
-        y25 = Column(Integer)
-        y26 = Column(Integer)
-        y27 = Column(Integer)
-        y28 = Column(Integer)
-        y29 = Column(Integer)
-        y30 = Column(Integer)
-        y31 = Column(Integer)
-        y32 = Column(Integer)
-        y33 = Column(Integer)
-        y34 = Column(Integer)
-        y35 = Column(Integer)
-        y36 = Column(Integer)
-        y37 = Column(Integer)
-        y38 = Column(Integer)
-        y39 = Column(Integer)
-        y40 = Column(Integer)
-        y41 = Column(Integer)
-        y42 = Column(Integer)
-        y43 = Column(Integer)
-        y44 = Column(Integer)
-        y45 = Column(Integer)
-        y46 = Column(Integer)
-        y47 = Column(Integer)
-        y48 = Column(Integer)
-        y49 = Column(Integer)
-        y50 = Column(Integer)  
-     
-    """Alle Metadaten-Objekte erzeugen """
-    Base.metadata.create_all(engine)    
-        
-Datenbank_erzeugen("Testdatenbank")
-
-
-
-
-'''
-engine = create_engine("sqlite+pysqlite:///:memory:",future = True, echo = True)#test_sqlite_db.db',future = True, echo = True)
-
-with engine.begin() as conn:
-    conn.execute(text("CREATE TABLE some_table (x int, y int)"))
-    conn.execute(
-        text("INSERT INTO some_table (x, y) VALUES (:x, :y)"),
-        [{"x": 6, "y": 8}, {"x": 9, "y": 10},{"x" : 1 ,"y" : 1},{"x" : 2, "y" :4}]
-        )
-    
-    result = conn.execute(text('Select x, y from some_table'))
-    for row in result:
-        print(row)
-    #conn.commit()
+Tutor: Stephan Fuehrer
 '''
 
-         
-''' 
-     Ergänze Attribute y2 bis y50 
-     for i in range(2,51):
-        setattr(ideale_funktionen,f'y{i}','integer')  
-'''         
+from sqlalchemy import create_engine, MetaData, Table, Column, Float,ForeignKey,Integer
+from sqlalchemy.orm import declarative_base,relationship
+import pandas as pd
+import os,sys
 
+def create_database_model(Datenbankname):
+     # Existenz feststellen
+     if os.path.exists(f'{Datenbankname}.db'):
+         print(f'\n!!! Datenbankdatei "{Datenbankname}.db" ist bereits im Verzeichnis vorhanden. Daher wird keine neue Datei erzeugt !!!\n')
+     else:       
+        '''Engine-Objekt erzeugen'''
+        engine = create_engine(f'sqlite:///{Datenbankname}.db',future = True,echo = True)     
+        Base = declarative_base()
+        
+        class testdaten(Base):
+            __tablename__ = 'testdaten'  
+            recordid = Column(Integer,primary_key=True)
+            x = Column(Float)
+            y = Column(Float)  
+            
+        class trainingsdaten(Base):
+            __tablename__ = 'trainingsdaten'        
+            x = Column(Float,primary_key=True)
+            
+            y1 = Column(Float)
+            y2 = Column(Float)
+            y3 = Column(Float)
+            y4 = Column(Float)       
+            
+        class ergebnisdaten(Base):
+            __tablename__ = 'ergebnisdaten'        
+            x = Column(Float,primary_key=True)
+            
+            y1 = Column(Float)
+            y2 = Column(Float)
+            delta_y = Column(Float)
+            funk_nr = Column(Float)
+            
+        class ideale_funktionen(Base):
+            __tablename__ = 'ideale_funktionen'  
+            
+            x = Column(Float,primary_key=True)
+            y1 = Column(Float)
+            y2 = Column(Float)
+            y3 = Column(Float)
+            y4 = Column(Float)
+            y5 = Column(Float)
+            y6 = Column(Float)
+            y7 = Column(Float)
+            y8 = Column(Float)
+            y9 = Column(Float)
+            y10 = Column(Float)
+            y11 = Column(Float)
+            y12 = Column(Float)
+            y13 = Column(Float)
+            y14 = Column(Float)
+            y15 = Column(Float)
+            y16 = Column(Float)
+            y17 = Column(Float)
+            y18 = Column(Float)
+            y19 = Column(Float)
+            y20 = Column(Float)
+            y21 = Column(Float)
+            y22 = Column(Float)
+            y23 = Column(Float)
+            y24 = Column(Float)
+            y25 = Column(Float)
+            y26 = Column(Float)
+            y27 = Column(Float)
+            y28 = Column(Float)
+            y29 = Column(Float)
+            y30 = Column(Float)
+            y31 = Column(Float)
+            y32 = Column(Float)
+            y33 = Column(Float)
+            y34 = Column(Float)
+            y35 = Column(Float)
+            y36 = Column(Float)
+            y37 = Column(Float)
+            y38 = Column(Float)
+            y39 = Column(Float)
+            y40 = Column(Float)
+            y41 = Column(Float)
+            y42 = Column(Float)
+            y43 = Column(Float)
+            y44 = Column(Float)
+            y45 = Column(Float)
+            y46 = Column(Float)
+            y47 = Column(Float)
+            y48 = Column(Float)
+            y49 = Column(Float)
+            y50 = Column(Float)            
+    
+        """ Alle Metadaten-Objekte erzeugen """
+        Base.metadata.create_all(engine)   
+    
+        testdaten = pd.read_csv('test.csv',header=0)
+        
+        print(f'\nNeue Datenbank-Datei {Datenbankname} erzeugt und Tabellen generiert.\n')
+    
+   
+    
 
-
-
+    
