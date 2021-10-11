@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''
-Programm fuer die Hausarbeit zum Kurs  DLMDWPMP01 - Programmieren mit Python
+Programmmodul fuer die Hausarbeit zum Kurs  DLMDWPMP01 - Programmieren mit Python
 
 Autor: Sebastian Kinnast Martikelnr.: 32112741
 
@@ -22,37 +22,22 @@ def create_database_model(Datenbankname):
         Base = declarative_base()
         
         class testdaten(Base):
-            __tablename__ = 'testdaten' 
+            __tablename__ = 'testdaten'
+            
             x = Column(Float,primary_key=True)
             y1 = Column(Float)
-            y2 = Column(Float)
             delta_y = Column(Float)
-            funkt_nr = Column(Float)
-            
-            '''
-            recordid = Column(Integer,primary_key=True)
-            x = Column(Float)
-            y = Column(Float)
-            '''
+            funkt_nr = Column(Float)      
             
         class trainingsdaten(Base):
-            __tablename__ = 'trainingsdaten'        
-            x = Column(Float,primary_key=True)
+            __tablename__ = 'trainingsdaten'    
             
+            x = Column(Float,primary_key=True)            
             y1 = Column(Float)
             y2 = Column(Float)
             y3 = Column(Float)
             y4 = Column(Float)       
-        '''    
-        class ergebnisdaten(Base):
-            __tablename__ = 'ergebnisdaten'        
-            x = Column(Float,primary_key=True)
-            
-            y1 = Column(Float)
-            y2 = Column(Float)
-            delta_y = Column(Float)
-            funk_nr = Column(Float)
-        '''    
+     
         class ideale_funktionen(Base):
             __tablename__ = 'ideale_funktionen'  
             
@@ -109,10 +94,8 @@ def create_database_model(Datenbankname):
             y50 = Column(Float)            
     
         """ Alle Metadaten-Objekte erzeugen """
-        Base.metadata.create_all(engine)   
-    
-        testdaten = pd.read_csv('test.csv',header=0)
-        
+        Base.metadata.create_all(engine)      
+              
         print(f'\nNeue Datenbank-Datei {Datenbankname} erzeugt und Tabellen generiert.\n')
     
    
