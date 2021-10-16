@@ -13,53 +13,67 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from sqlalchemy import create_engine,select,text
 
-
-'''Funktion die eine ideale Trendlinie für x-/y-Werte mit least square ermittelt'''
-def linear_regression_with_least_square(database,table,columnname_x,columnname_y):  
-    
+'''Funktion liest 2 Spalten aus einer Datenbanktabelle aus'''
+def read_data(database,table,*columnames):#columnname_1,columnname_2):
     '''Mit SQLite-Datenbank verbinden'''
     engine = create_engine(f'sqlite:///{database}.db',future = True,echo = True) 
     
     ''' Daten aus Tabelle auslesen'''
     con = engine.connect()    
-    data = pd.read_sql_table(table, con, schema=None, index_col=None, coerce_float=True, parse_dates=None, columns=(columnname_x,columnname_y), chunksize=None)
-    col_x = data[columnname_x].values   #con.execute(text(f'select {x} from {table}'))
-    col_y = data[columnname_y].values   #con.execute(text(f'select {y} from {table}'))
+    data = pd.read_sql_table(table, con, schema=None, index_col=None, coerce_float=True, parse_dates=None, columns=(columnames), chunksize=None)#(columnname_1,columnname_2), chunksize=None)
     
-    ''' Steigung der Geraden ermitteln'''    
-    mean_x = np.mean(col_x)
-    mean_y = np.mean(col_y)
-     
-    ''' Gesamtzahl der Werte''' 
-    n = len(col_x)
+    output_data = list()
     
-    ''' Using the formula to calculate 'm' and 'c' '''
-    numer = 0
-    denom = 0
-    for i in range(n):
-        numer += (col_x[i] - mean_x) * (col_y[i] - mean_y)
-        denom += (col_x[i] - mean_x) ** 2
+    for columname in columnames:
+        columname = data[columname].values
+        output_data.append(columname)
         
-    m = numer / denom
-    c = mean_y - (m * mean_x)    
-       
-    ''' Plotting Values and Regression Line '''    
-    max_x = np.max(col_x) + 100
-    min_x = np.min(col_x) - 100
+    return output_data
+
+''' Funktion ermittelt Formel für Regressionsgerade mit least-Square-Methodik'''
+def linear_regression_lsquare(X,Y):      
     
-    ''' Calculating line values x and y '''
-    x = np.linspace(min_x, max_x, 1000)
-    y = c + m * x
+    ''' Ermittle a und b für Trendgeraden-Formel y= a+b* x '''    
+    ''' arithmn mitte für x und y berechnen'''    
+    mean_x = np.mean(X)
+    mean_y = np.mean(Y)
      
-    ''' Ploting Line '''
-    plt.plot(x, y, color='#58b970', label='Regression Line')
-    # Ploting Scatter Points
-    plt.scatter(col_x, col_y, c='#ef5423', label=f'Scatter Plot {columnname_y}')
+    ''' Gesamtzahl der x-Werte''' 
+    n = len(X)
+    
+    ''' Werte zur Berechnung von b ermitteln'''
+    Zaehler = 0
+    Nenner = 0
+    
+    ''' Berechnung über alle Datenzeilen'''
+    for i in range(n):
+        Zaehler += (X[i] - mean_x) * (Y[i] - mean_y)
+        Nenner += (X[i] -  mean_x) ** 2
+        
+    ''' Berechne a und b'''
+    b = Zaehler / Nenner
+    a = mean_y - (b * mean_x)   
+    
+    return [a,b]
+
+
+def data_visualization(X,Y,a,b,titel):    
+    ''' Zeichne x-,y-Werte und Regressionsgerade'''    
+    max_x = np.max(X) #+ 100
+    min_x = np.min(X) #- 100
+    
+    ''' Berechne x und y-Werte sowie Achsenabschnitte'''
+    x_values = np.linspace(min_x, max_x, 10)
+    y_values = a + b * x_values
      
-    # Titel hinzufügen
-    plt.title(table)
-    plt.xlabel(columnname_x)
-    plt.ylabel(columnname_y)
+    ''' Zeichne Gerade '''
+    plt.plot(x_values, y_values, color='#58b970', label='Regressionsgerade')
+    ''' Zeichne Scatter Points '''
+    plt.scatter(X, Y, c='#ef5423', label=f'Scatter Plot')
+     
+    plt.title(titel)
+    plt.xlabel('x')
+    plt.ylabel('y')
     plt.legend()
     plt.show()   
     
