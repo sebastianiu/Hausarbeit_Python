@@ -6,7 +6,6 @@ Autor: Sebastian Kinnast Martikelnr.: 32112741
 
 Tutor: Stephan Fuehrer
 '''
-
 from sqlalchemy import create_engine, MetaData, Table, Column, Float,ForeignKey,Integer
 from sqlalchemy.orm import declarative_base,relationship
 import pandas as pd
