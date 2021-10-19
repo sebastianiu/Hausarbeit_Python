@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 '''
 Programmmodul fuer die Hausarbeit zum Kurs  DLMDWPMP01 - Programmieren mit Python
 
@@ -14,7 +13,7 @@ import os,sys
 def create_database_model(Datenbankname):
      # Existenz feststellen
      if os.path.exists(f'{Datenbankname}.db'):
-         print(f'\n!!! Datenbankdatei "{Datenbankname}.db" ist bereits im Verzeichnis vorhanden. Daher wird keine neue Datei erzeugt !!!\n')
+         raise RuntimeError(f'Datenbankdatei "{Datenbankname}.db" ist bereits im Verzeichnis vorhanden.')
      else:       
         '''Engine-Objekt erzeugen'''
         engine = create_engine(f'sqlite:///{Datenbankname}.db',future = True,echo = True)     

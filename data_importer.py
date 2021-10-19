@@ -31,10 +31,10 @@ def data_import(file,table,databasename):
             data.to_sql(table,con=engine,if_exists='append',index = False,index_label = 'recordid')  
             print(f'(data_import) Daten in Tabelle {table} importiert.\n')
         else:
-           print(f'\n!!! (data_import) Es sind bereits Daten in der Tabelle {table} vorhanden. Daher werden keine neuen Daten importiert. !!!\n')
+           raise LookupError('(data_import) Es sind bereits Daten in der Tabelle {table} vorhanden. Daher werden keine neuen Daten importiert.')
           
     else:
-        print(f'!!! (data_import) Datei "{file}" nicht im Verzeichnis gefunden !!!\n')
+        raise FileNotFoundError(f'(data_import) Datei "{file}" nicht im Verzeichnis gefunden.')
           
      
             
