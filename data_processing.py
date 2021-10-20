@@ -10,11 +10,13 @@ Tutor: Stephan Fuehrer
 '''erfoderliche Pakete importieren'''
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 from sqlalchemy import create_engine,select,text,MetaData
 from sqlalchemy.orm import declarative_base
 from os import path
 import sys
+
+
+
 
 def data_import(file,table,databasename):     
     
@@ -58,29 +60,15 @@ def read_data(database,table,*columnames):#columnname_1,columnname_2):
     ''' Daten aus Tabelle auslesen'''
     con = engine.connect() 
     
-    ''' Prüfen, ob Tabelle vorhanden'''
-   # metadata_obj = MetaData()
-   # table_list = list()
-   # for t in metadata_obj.sorted_tables:
-   #     table_list.append(t.name)
-   # if table not in table_list:        
-    #    raise KeyError(f'Tabelle "{table}" existiert nicht in der Datenbank "{database}".')      
-   # else:
     result = con.execute(text(f'select * from {table}'))
         
     ''' Prüfen, ob auslesbare Daten vorhanden'''             
     if len(result.all()) == 0:
-         raise LookupError(f'Tabelle {table} enthält keine Daten')
+         raise LookupError(f'(read_data) Tabelle "{table}" enthält keine Daten!')
     else:
         data = pd.read_sql_table(table, con, schema=None, index_col=None, coerce_float=True, parse_dates=None, columns=(columnames), chunksize=None)#(columnname_1,columnname_2), chunksize=None)
-       #output_data = list()
-            
-        #for columname in columnames:
-         #    columname = data[columname].values
-          #   output_data.append(columname)
                     
-        return data#output_data     
-
+        return data
 ''' Funktion ermittelt Formel für Regressionsgerade mit least-Square-Methodik'''
 def linear_regression_lsquare(X,Y):      
     
@@ -107,27 +95,104 @@ def linear_regression_lsquare(X,Y):
     
     return [a,b]
 
+ 
+''' Funktion um die 4 besten Passungen zwischen Trainingsdaten und idealen 
+Funktionen mit least suqare Methode zu ermitteln
+'''
+def get_fits_with_least_square_method(database,tablename_traindata = 'trainingsdaten'
+                                      ,tablename_idealfunctions = 'ideale_funktionen'):
+    
+    ''' Leerer Dataframe für Selektions-Ergebnisse'''
+    Tabelle_Ideale_Funktionen_tmp = pd.DataFrame(columns=['train_funktion', 'ideal_funktion', 
+                                              'quadr_abw'])
+    
+    '''quadr. Abweichungen zwischen Trainingsdaten und idealen Funktionen ermitteln '''
+    for i in range(1,5): 
+        funktion_train = f'y{i}'
+        Selektion_tmp = list()
+        
+        for i in range(1,51):        
+            funktion_ideal= f'y{i}'        
+            
+            ''' Daten aus Tabellen auslesen '''
+            data_funktion_train = read_data(database,'trainingsdaten','x',funktion_train)
+            data_funktion_ideal = read_data(database,'ideale_funktionen','x',funktion_ideal)
+            
+            #data_funktion_ideal.rename(columns={funktion_ideal:f'funktion_ideal{1}'})
+            
+            
+            ''' Tabellen joinen und Abweichung pro Datenzeile ermitteln und 
+            Gesamtsumme aus quadr. Abweichen bilden'''        
+            if funktion_train == funktion_ideal:
+                join_table= data_funktion_train.join(data_funktion_ideal.set_index('x'),
+                                                     on='x',rsuffix='_ideal')
+                quadr_abw =  sum((join_table[funktion_train] - 
+                                  join_table[f'{funktion_ideal}_ideal'])**2)
+            else:
+                join_table= data_funktion_train.join(data_funktion_ideal.set_index('x'), on='x')
+                quadr_abw =  sum((join_table[funktion_train] - join_table[funktion_ideal])**2)
+            
+            """ Alle Abweichungen je Trainingsdatenfunktion speichern """
+            Selektion_tmp.append({'train_funktion':funktion_train,'ideal_funktion':
+                                  funktion_ideal,'quadr_abw':quadr_abw})     
+        
+        """ Ideale Funktionen mit mit minimalster Abweichung ermitteln   """
+        Selektion_tmp = pd.DataFrame(Selektion_tmp)
+        
+        Tabelle_Ideale_Funktionen_tmp = Tabelle_Ideale_Funktionen_tmp.append(
+                Selektion_tmp.loc[
+                                Selektion_tmp['quadr_abw'] == 
+                               min(Selektion_tmp['quadr_abw'])]
+                ) 
 
-def data_visualization(X,Y,a,b,titel):    
-    ''' Zeichne x-,y-Werte und Regressionsgerade'''    
-    max_x = np.max(X) #+ 100
-    min_x = np.min(X) #- 100
-    
-    ''' Berechne x und y-Werte sowie Achsenabschnitte'''
-    x_values = np.linspace(min_x, max_x, 10)
-    y_values = a + b * x_values
-     
-    ''' Zeichne Gerade '''
-    plt.plot(x_values, y_values, color='#58b970', label='Regressionsgerade')
-    ''' Zeichne Scatter Points '''
-    plt.scatter(X, Y, c='#ef5423', label=f'Scatter Plot')
-     
-    plt.title(titel)
-    plt.xlabel('x')
-    plt.ylabel('y')
-    plt.legend()
-    plt.show()   
-    
+    ''' 
+    Ermittle maximale Abweichung zwischen tainingsdaten und für jede der 4 
+    idealen Funktionen
+    '''
+    Tabelle_Ideale_Funktionen = pd.DataFrame(columns=['train_funktion', 'ideal_funktion', 
+                                              'Max_Abweichung'])     
+   
+    for i in range(1,5):
+          funktion_train = f'y{i}'
+          data_train = read_data(database,'trainingsdaten','x',funktion_train)
+          
+          funktion_ideal = Tabelle_Ideale_Funktionen_tmp.loc[
+                                Tabelle_Ideale_Funktionen_tmp['train_funktion'] 
+                                == funktion_train].iloc[0]['ideal_funktion']
+          
+          data_funktion_data = read_data(database,'ideale_funktionen','x',
+                            funktion_ideal)
+          
+          ''' Tabellen joinen und Abweichungen pro Datenzeile ermitteln'''        
+          if funktion_train == funktion_ideal:
+             
+              join_table = pd.merge(data_train, data_funktion_data, on="x", 
+                                    how="left",rsuffix='_ideal')
+                                                     
+              ''' Abweichung pro Zeile ermitteln '''
+              join_table['Abweichung'] = join_table[funktion_train] - \
+                                          join_table[f'{funktion_ideal}_ideal']
+               
+          else:
+              join_table= pd.merge(data_train, data_funktion_data, on="x", how="left")
+                       
+              ''' Abweichung pro Zeile ermitten '''
+              join_table['Abweichung'] = join_table[funktion_train] - \
+                                          join_table[funktion_ideal]
+         
+          '''Zeile mit höchster Abweichung selektieren und in Dataframe speichern  '''
+          Max_Abweichung =  join_table.loc[join_table['Abweichung'] == 
+                               max(join_table['Abweichung'])].iloc[0]['Abweichung']
+          
+          Tabelle_Ideale_Funktionen = Tabelle_Ideale_Funktionen.append(
+                                              {
+                                              'train_funktion':funktion_train,
+                                              'ideal_funktion':funktion_ideal,
+                                              'Max_Abweichung':Max_Abweichung
+                                              },ignore_index=True)         
+         
+    return Tabelle_Ideale_Funktionen       
+   
 
 def finding_fits(table1,table2):
     '''
