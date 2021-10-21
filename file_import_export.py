@@ -23,9 +23,9 @@ def read_csv(file):
         
 
 ''' Funktion zum Auslesen von Daten aus einer CSV-Datei und import in eine SQLLite-DB-Tabelle '''
-def import_csv_data(file,table,databasename):    
+def import_data(data,table,databasename):    
     ''' CSV-Datei einlesen '''
-    csv_data = read_csv(file)
+    #csv_data = read_csv(file)
     
     ''' Prüfen, ob SQLite-Datenbank-Datei im Verzeichnis exitiert'''
     if path.exists(f'{databasename}.db') == True:    
@@ -37,7 +37,7 @@ def import_csv_data(file,table,databasename):
         result = con.execute(text(f'select * from {table}'))
                
         if len(result.all()) == 0:
-            csv_data.to_sql(table,con=engine,if_exists='append',index = False,index_label = 'recordid')  
+            data.to_sql(table,con=engine,if_exists='append',index = False,index_label = 'recordid')  
             print(f'(data_import) Daten in Tabelle {table} importiert.\n')
         else:
            raise LookupError(f'(data_import) Es sind bereits Daten in der Tabelle "{table}" vorhanden. Daher werden keine neuen Daten importiert.')

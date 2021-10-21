@@ -16,8 +16,6 @@ from os import path
 import sys
 
 
-
-
 def data_import(file,table,databasename):     
     
     ''' Funktion zum Auslesen von Daten aus einer CSV-Datei und import in eine SQLLite-DB-Tabelle '''
@@ -69,6 +67,8 @@ def read_data(database,table,*columnames):#columnname_1,columnname_2):
         data = pd.read_sql_table(table, con, schema=None, index_col=None, coerce_float=True, parse_dates=None, columns=(columnames), chunksize=None)#(columnname_1,columnname_2), chunksize=None)
                     
         return data
+    
+    
 ''' Funktion ermittelt Formel für Regressionsgerade mit least-Square-Methodik'''
 def linear_regression_lsquare(X,Y):      
     
@@ -154,19 +154,19 @@ def get_fits_with_least_square_method(database,tablename_traindata = 'trainingsd
    
     for i in range(1,5):
           funktion_train = f'y{i}'
-          data_train = read_data(database,'trainingsdaten','x',funktion_train)
+          trainingsdaten = read_data(database,'trainingsdaten','x',funktion_train)
           
           funktion_ideal = Tabelle_Ideale_Funktionen_tmp.loc[
                                 Tabelle_Ideale_Funktionen_tmp['train_funktion'] 
                                 == funktion_train].iloc[0]['ideal_funktion']
           
-          data_funktion_data = read_data(database,'ideale_funktionen','x',
+          daten_ideale_funktionen = read_data(database,'ideale_funktionen','x',
                             funktion_ideal)
           
           ''' Tabellen joinen und Abweichungen pro Datenzeile ermitteln'''        
           if funktion_train == funktion_ideal:
              
-              join_table = pd.merge(data_train, data_funktion_data, on="x", 
+              join_table = pd.merge(trainingsdaten, daten_ideale_funktionen, on="x", 
                                     how="left",rsuffix='_ideal')
                                                      
               ''' Abweichung pro Zeile ermitteln '''
@@ -174,7 +174,7 @@ def get_fits_with_least_square_method(database,tablename_traindata = 'trainingsd
                                           join_table[f'{funktion_ideal}_ideal']
                
           else:
-              join_table= pd.merge(data_train, data_funktion_data, on="x", how="left")
+              join_table= pd.merge(trainingsdaten, daten_ideale_funktionen, on="x", how="left")
                        
               ''' Abweichung pro Zeile ermitten '''
               join_table['Abweichung'] = join_table[funktion_train] - \

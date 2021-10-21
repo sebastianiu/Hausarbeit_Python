@@ -23,7 +23,7 @@ def create_database_model(Datenbankname):
             __tablename__ = 'testdaten'
             
             x = Column(Float,primary_key=True)
-            y1 = Column(Float)
+            y = Column(Float)
             delta_y = Column(Float)
             funkt_nr = Column(Float)      
             
