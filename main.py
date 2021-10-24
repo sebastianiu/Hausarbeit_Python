@@ -61,7 +61,7 @@ finally:
      
         
     
-    ''' Daten auf geringste Abweichungn reduzieren '''    
+    ''' Daten auf geringste Abweichunng reduzieren '''    
     ergebnisdaten = pd.merge(
                             ergebnisdaten[['x','y','delta_y',]].groupby(['x','y']).min('delta_y'),
                              ergebnisdaten[['x','y','delta_y','funkt_nr']],
@@ -78,17 +78,23 @@ finally:
     ''' 
     Fälle ausfiltern, in denen max. Abw. zwischen Trainingsd. und idealen Funktionen
     größer als max. Abweichung wischen Testdaten und idealen Funktionen
-    '''
-   
+    '''   
     ergebnisdaten =  ergebnisdaten.where(
                                             (
-                                            ergebnisdaten['delta_y'] / 
-                                            ergebnisdaten['Max_Abweichung']
-                                            )                                
-                                          <= np.sqrt(1))    
+                                                ergebnisdaten['Max_Abweichung'] /
+                                                ergebnisdaten['delta_y']                                             
+                                                ) <= np.sqrt(2)
+                                            )
+     
+    '''Ermittle Inices leerer Zeilen '''
+    droplist_index = ergebnisdaten.where(ergebnisdaten['x'] == None).index.tolist()
+    
+    '''Lösche leere Zeilen'''
+    ergebnisdaten.drop(droplist_index,axis ='index')
+    
     print(ergebnisdaten)    
     
-    #ergebnisdaten.to_csv('ergebnis.csv')
+    ergebnisdaten.to_csv('ergebnis.csv')
     
     
         
