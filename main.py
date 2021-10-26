@@ -28,13 +28,14 @@ except:
 
 finally:                                     
     ''' 
-    Beste passungen zwischen Trainingsdaten und ideal Funktionen ermitteln 
+    Beste Passungen zwischen Trainingsdaten und ideal Funktionen ermitteln 
     '''
     Tabelle_Ideale_Funktionen = get_fits_with_least_square_method(database)
     
    
     ''' Testdaten einlesen'''
     testdaten = read_csv('test.csv')
+        
     
     ''' Leerer DF für Ergebnisse erzeugen '''
     ergebnisdaten = pd.DataFrame(columns=['x','y','delta_y','funkt_nr'])                           
