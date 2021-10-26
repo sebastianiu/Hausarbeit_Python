@@ -6,6 +6,5 @@ Autor: Sebastian Kinnast Martikelnr.: 32112741
 Tutor: Stephan Fuehrer
 '''
 
-
 class databasefilenotfound(LookupError):
     print('Datenbank.-Datei nicht gefunden')

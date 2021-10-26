@@ -7,24 +7,40 @@ Tutor: Stephan Fuehrer
 '''
 
 import matplotlib.pyplot as plt
-import pandas as np
+import numpy as np
+import random
 
-def data_visualization(X,Y,a,b,titel):    
-    ''' Zeichne x-,y-Werte und Regressionsgerade'''    
-    max_x = np.max(X) #+ 100
-    min_x = np.min(X) #- 100
-    
-    ''' Berechne x und y-Werte sowie Achsenabschnitte'''
-    x_values = np.linspace(min_x, max_x, 10)
-    y_values = a + b * x_values
-     
-    ''' Zeichne Gerade '''
-    plt.plot(x_values, y_values, color='#58b970', label='Regressionsgerade')
-    ''' Zeichne Scatter Points '''
-    plt.scatter(X, Y, c='#ef5423', label=f'Scatter Plot')
-     
-    plt.title(titel)
-    plt.xlabel('x')
-    plt.ylabel('y')
-    plt.legend()
-    plt.show()
+def create_scatter_plot1(X,Y,label,titel):    
+ 
+   ''' Zeichne Punkte-Wolke '''
+   plt.scatter(
+           X
+           ,Y
+           ,c=["#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])]
+           ,label = label
+           )
+   
+   
+   plt.title(titel)
+   plt.xlabel('x')
+   plt.ylabel('y')
+   plt.legend()
+   plt.show()
+
+def create_scatter_plot2(*daten,titel):    
+ 
+   ''' Zeichne Punkte-Wolke '''
+   for tabelle in daten:
+       plt.scatter(
+               daten['x']
+               ,daten['y']
+               ,c=["#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])]
+               ,label = daten['label'].groupby(daten['label'])
+               )
+   
+   
+   plt.title(titel)
+   plt.xlabel('x')
+   plt.ylabel('y')
+   plt.legend()
+   plt.show()

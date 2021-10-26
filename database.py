@@ -5,7 +5,8 @@ Autor: Sebastian Kinnast Martikelnr.: 32112741
 
 Tutor: Stephan Fuehrer
 '''
-from sqlalchemy import create_engine, MetaData, Table, Column, Float,ForeignKey,Integer
+from sqlalchemy import create_engine, MetaData, Table, Column, Float,ForeignKey,Integer,
+String
 from sqlalchemy.orm import declarative_base,relationship
 import pandas as pd
 import os,sys
@@ -20,16 +21,14 @@ def create_database_model(Datenbankname):
         Base = declarative_base()
         
         class testdaten(Base):
-            __tablename__ = 'testdaten'
-            
+            __tablename__ = 'testdaten'            
             x = Column(Float,primary_key=True)
-            y = Column(Float)
+            y = Column(Float,primary_key=True)
             delta_y = Column(Float)
-            funkt_nr = Column(Float)      
+            funkt_nr = Column(String)   
             
         class trainingsdaten(Base):
-            __tablename__ = 'trainingsdaten'    
-            
+            __tablename__ = 'trainingsdaten'             
             x = Column(Float,primary_key=True)            
             y1 = Column(Float)
             y2 = Column(Float)
@@ -37,8 +36,7 @@ def create_database_model(Datenbankname):
             y4 = Column(Float)       
      
         class ideale_funktionen(Base):
-            __tablename__ = 'ideale_funktionen'  
-            
+            __tablename__ = 'ideale_funktionen'           
             x = Column(Float,primary_key=True)
             y1 = Column(Float)
             y2 = Column(Float)
