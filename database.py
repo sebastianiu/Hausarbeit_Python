@@ -1,12 +1,11 @@
 '''
 Programmmodul fuer die Hausarbeit zum Kurs  DLMDWPMP01 - Programmieren mit Python
 
-Autor: Sebastian Kinnast Martikelnr.: 32112741
+Autor: Sebastian Kinnast Matrikelnr.: 32112741
 
 Tutor: Stephan Fuehrer
 '''
-from sqlalchemy import create_engine, MetaData, Table, Column, Float,ForeignKey,Integer,
-String
+from sqlalchemy import create_engine, MetaData, Table, Column, Float,ForeignKey,String
 from sqlalchemy.orm import declarative_base,relationship
 import pandas as pd
 import os,sys

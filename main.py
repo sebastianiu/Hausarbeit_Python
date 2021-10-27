@@ -1,26 +1,20 @@
 """
 Programmmodul fuer die Hausarbeit zum Kurs  DLMDWPMP01 - Programmieren mit Python
 
-Autor: Sebastian Kinnast Martikelnr.: 32112741
+Autor: Sebastian Kinnast Matrikelnr.: 32112741
 
 Tutor: Stephan Fuehrer
 """
-
 
 ''' Passende Funktionen aus Modulen importieren '''
 from data_import_export import import_data,read_csv
 from database import create_database_model 
 from data_processing import read_data,get_fits_with_least_square_method,validate_testdata,read_data
-from data_visualization import create_scatter_plot1,create_scatter_plot2
-
-
-import matplotlib.pyplot as plt
-import numpy as np
-import random
+from data_visualization import create_scatter_plot_fuer_daten_und_ideale_funktionen
 
 
 '''gewünschter Namen der SQLite-Datenbank definieren'''    
-database='db_hausarbeit_9'    
+database='db_hausarbeit_10'    
 #input('Definieren Sie einen Namen Für die Datenbank, die erzeugt werden muss (Programm mit "-exit" Beenden)')#'db_hausarbeit_13'  
 
 try:      
@@ -43,50 +37,38 @@ try:
     testdaten_validiert = validate_testdata(daten_ideale_passungen,testdaten,database)  
   
     import_data(testdaten_validiert,'testdaten',database) 
-
+    
 except:
-    print('Fehler ist aufgetreten')
+    print('Fehler sind aufgetreten')
 
-finally:    
+finally:   
+    ''' Trainingsdaten auslesen '''
+    trainingsdaten = read_data(database,'trainingsdaten','x','y1','y2','y3','y4')
     
-    ''' Testdaten zeichnen '''
-    X = read_data(database,'testdaten','x')
-    Y = read_data(database,'testdaten','y')                
-   
-    ''' Zeichne Punkte-Wolke '''
-    plt.scatter(
-           X
-           ,Y
-           ,c=["#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])]
-           ,label = 'testdaten'
-           )   
-   
-    plt.title('titel')
-    plt.xlabel('x')
-    plt.ylabel('y')
-    plt.legend()
-    plt.show()    
+    ''' validierte Testdaten auslesen '''
+    testdaten_validiert = read_data(database,'testdaten','x','y')
     
-    ''' ideale Funktion zeichnen '''    
-    liste_ideale_funktionen = set(read_data(database,'testdaten','funkt nr'))
+    ''' Lister aller ermittelten idealen Funktion erzeugen '''    
+    liste_ideale_funktionen = set(list(read_data(database,'testdaten','funkt_nr')['funkt_nr']))
     
-    for funkt_nr in liste_ideale_funktionen:   
-        X = read_data(database,'ideale_funktionen','x')
-        Y = read_data(database,'ideale_funktionen',funkt_nr)                
-   
-        ''' Zeichne Punkte-Wolke '''
-        plt.scatter(
-               X
-               ,Y
-               ,c=["#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])]
-               ,label = 'funkt_nr'
-               )   
-       
-    plt.title('Ergebnis')
-    plt.xlabel('x')
-    plt.ylabel('y')
-    plt.legend()
-    plt.show()
+    '''Daten der idealen Funktionen auslesen'''
+    daten_ideale_funktionen  = read_data(database,'ideale_funktionen','x',*liste_ideale_funktionen)
+    
+    '''Trainingsdaten visualisieren '''
+    create_scatter_plot(
+                                    trainingsdaten,
+                                    liste_ideale_funktionen,
+                                    daten_ideale_funktionen
+                                  )
+    
+    ''' Testdaten visualisieren '''
+    create_scatter_plot(testdaten_validiert,
+                                  liste_ideale_funktionen,
+                                    daten_ideale_funktionen
+                                  )
+    
+    
+    
                
                   
  

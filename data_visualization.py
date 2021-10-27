@@ -1,46 +1,83 @@
 '''
 Programmmodul fuer die Hausarbeit zum Kurs  DLMDWPMP01 - Programmieren mit Python
 
-Autor: Sebastian Kinnast Martikelnr.: 32112741
+Autor: Sebastian Kinnast Matrikelnr.: 32112741
 
 Tutor: Stephan Fuehrer
 '''
 
 import matplotlib.pyplot as plt
+import bokeh as bk
 import numpy as np
-import random
+import fnmatch
 
-def create_scatter_plot1(X,Y,label,titel):    
- 
-   ''' Zeichne Punkte-Wolke '''
-   plt.scatter(
-           X
-           ,Y
-           ,c=["#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])]
-           ,label = label
-           )
-   
-   
-   plt.title(titel)
-   plt.xlabel('x')
-   plt.ylabel('y')
-   plt.legend()
-   plt.show()
+''' Funktion erstellt ein Scatter-Plot reale Daten und passende ideale Funktions-Daten'''   
+def create_scatter_plot_fuer_daten_und_ideale_funktionen(daten,liste_ideale_funktionen,
+                                                         daten_ideale_funktionen,
+                                                         titel='Trainingsdaten'):    
+    ''' Style festlegen '''
+    plt.style.use('ggplot') 
+    
+    ''' figure erzeugen'''
+    fig, ax = plt.subplots(figsize=(6,6)) 
 
-def create_scatter_plot2(*daten,titel):    
- 
-   ''' Zeichne Punkte-Wolke '''
-   for tabelle in daten:
-       plt.scatter(
-               daten['x']
-               ,daten['y']
-               ,c=["#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])]
-               ,label = daten['label'].groupby(daten['label'])
-               )
+    ''' Grid hinzufügen '''
+    ax.grid(True,color="k")           
    
-   
-   plt.title(titel)
-   plt.xlabel('x')
-   plt.ylabel('y')
-   plt.legend()
-   plt.show()
+    ''' Liste mit Farben '''
+    farben_liste1 = ['red','orange','yellow','green']
+    
+    farbenwahl_index = 0
+    
+    ''' Liste aller Y-Spalten erzeugen'''
+    y_spalten = fnmatch.filter(daten.columns,'y*')
+    
+    '''Alle Punkte der idealen Funktionen mit Zufallsfarben zeichnen'''
+    for y_spalte in y_spalten:    
+             
+        ''' x-/y-Werte aus Datenbanktabelle auslesen'''
+        X = daten['x']
+        Y = daten[y_spalte]    
+          
+        ''' Zeichne Punkte'''
+        ax.scatter(
+               X
+               ,Y
+               ,s = 75
+               ,c=farben_liste1[farbenwahl_index]
+               ,label = f'{y_spalte} (trainingsdaten)'
+               ) 
+        
+        farbenwahl_index += 1 
+       
+    farbenwahl_index = 0
+    
+    '''Alle Punkte der idealen Funktionen zeichnen'''
+    farben_liste_ideale_funktionen = ['blue','purple','midnightblue','magenta']
+    
+    farbenwahl_index = 0
+    
+    '''Alle Punkte der idealen Funktionen mit Zufallsfarben zeichnen'''
+    for nr_ideale_funktion in liste_ideale_funktionen:    
+             
+        ''' x-/y-Werte aus Datenbanktabelle auslesen'''
+        X = daten_ideale_funktionen['x']
+        Y = daten_ideale_funktionen[nr_ideale_funktion]    
+          
+        ''' Zeichne Punkte'''
+        ax.scatter(
+               X
+               ,Y
+               ,s = 5
+               ,c=farben_liste_ideale_funktionen[farbenwahl_index]
+               ,label = f'{nr_ideale_funktion} (ideale Funktion)'
+               ) 
+        
+        farbenwahl_index += 1  
+        
+    '''Visualisierung einblenden '''   
+    plt.title(titel)
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.legend()
+    plt.show()
