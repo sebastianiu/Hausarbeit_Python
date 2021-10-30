@@ -1,5 +1,6 @@
 '''
-Programmmodul fuer die Hausarbeit zum Kurs  DLMDWPMP01 - Programmieren mit 
+Programmmodul für Datenverarbeitungs-Funktionen 
+fuer die Hausarbeit zum Kurs  DLMDWPMP01 - Programmieren mit 
 Python
 
 Autor: Sebastian Kinnast Matrikelnr.: 32112741
@@ -14,78 +15,53 @@ from os import path
 import sys
 import numpy as np
 import pandas as pd
+from user_exceptions import DatabaseFileNotFoundError,DatabaseTableEmptyError
 
-  
-'''Funktion liest Spalten aus einer Datenbanktabelle aus und speichert Inhalt \
-    in einem DataRame
-'''
 def read_data(database,table,*columnames):
-    
-    # Prüfen, ob DB-Datei exisiert
-    if path.exists(f'{database}.db'):   
-         
-        # Mit SQLite-Datenbank verbinden'''
-        engine = create_engine(f'sqlite:///{database}.db',future = True,echo = True) 
-        con = engine.connect() 
-        
-        # Daten aus Tabelle abfragen
-        result = con.execute(text(f'select * from {table}'))
-        
-        # Prüfen, ob auslesbare Daten vorhanden             
-        if len(result.all()) == 0:
-            raise KeyError(f'(read_data) Tabelle "{table}" enthält keine Daten')
+    '''Funktion liest Spalten aus einer Datenbanktabelle aus und speichert Inhalt \
+    in einem DataRame
+    '''
+    try:
+        # Prüfen, ob DB-Datei exisiert
+        if path.exists(f'{database}.db'):            
+            # Mit SQLite-Datenbank verbinden'''
+            engine = create_engine(f'sqlite:///{database}.db',future = True,echo = True)   
+            
+            # Prüfen, ob auslesbare Daten vorhanden
+            try:               
+                with engine.connect() as con:
+                    # Daten aus Tabelle abfragen
+                    result = con.execute(text(f'select * from {table}'))
+                    
+                    if len(result.all()) > 0:
+                        data = pd.read_sql_table(
+                                                table, con, schema=None, index_col=None, 
+                                                 coerce_float=True, parse_dates=None, 
+                                                 columns=(columnames), chunksize=None
+                                                )                    
+                        return data                
+                    else:
+                        raise DatabaseTableEmptyError                     
+            except DatabaseTableEmptyError:
+                print(DatabaseTableEmptyError().error_message) 
+                
         else:
-             data = pd.read_sql_table(
-                                table, con, schema=None, index_col=None, 
-                                 coerce_float=True, parse_dates=None, 
-                                 columns=(columnames), chunksize=None
-                                 ) 
-             return data
-    else:        
-         raise FileNotFoundError(f'Datenbankdatei "{database}.db" ist bereits \
-                                im Verzeichnis vorhanden.')                  
-       
+            raise DatabaseFileNotFoundError
+            
+    except DatabaseFileNotFoundError:
+        print(DatabaseFileNotFoundError().error_message) 
     
-''' Funktion ermittelt Formel für Regressionsgerade mit least-Square-Methodik'''
-def linear_regression_lsquare(X,Y):      
+def get_fits_with_least_square_method(trainingsdaten,daten_ideale_funktionen):
     
-    # Ermittle a und b für Trendgeraden-Formel y= a+b* x    
-    # arithm. Mittel für x und y berechnen'''    
-    mean_x = np.mean(X)
-    mean_y = np.mean(Y)
-     
-    # Gesamtzahl der x-Werte
-    n = len(X)
-    
-    # Werte zur Berechnung von b ermitteln
-    Zaehler = 0
-    Nenner = 0
-    
-    # Berechnung über alle Datenzeilen
-    for i in range(n):
-        Zaehler += (X[i] - mean_x) * (Y[i] - mean_y)
-        Nenner += (X[i] -  mean_x) ** 2
-        
-    # Berechne a und b
-    b = Zaehler / Nenner
-    a = mean_y - (b * mean_x)   
-    
-    return [a,b]
-
- 
-''' Funktion um die 4 besten Passungen zwischen Trainingsdaten und idealen 
-Funktionen mit least suqare Methode zu ermittelt und zusätzliche die maximale 
-Abweichung je idealer Funktion zu den Trainingsdaten speichert
-'''
-def get_fits_with_least_square_method(database,tablename_traindata = 'trainingsdaten'
-                                      ,tablename_idealfunctions = 'ideale_funktionen'):
-    
+    ''' Funktion, um die vier besten Passungen zwischen Trainingsdaten und idealen 
+    Funktionen mit least suqare Methode zu ermittelt und zusätzliche die maximale 
+    Abweichung je idealer Funktion zu den Trainingsdaten speichert
+    '''
     # Leerer Dataframe für Selektions-Ergebnisse
-    Tabelle_Ideale_Funktionen_tmp = pd.DataFrame(columns=[
-                                                            'train_funktion', 
-                                                            'ideal_funktion', 
+    Tabelle_Ideale_Funktionen_tmp = pd.DataFrame(columns=['train_funktion', 
+                                                           'ideal_funktion', 
                                                             'quadr_abw']
-        )
+                                                 )
     
     # quadr. Abweichungen zwischen Trainingsdaten und idealen Funktionen ermitteln
     for i in range(1,5): 
@@ -95,11 +71,12 @@ def get_fits_with_least_square_method(database,tablename_traindata = 'trainingsd
         for i in range(1,51):        
             funktion_ideal= f'y{i}'        
             
-            # Daten aus Tabellen auslesen
-            data_funktion_train = read_data(database,'trainingsdaten','x',funktion_train)
-            
-            data_funktion_ideal = read_data(database,'ideale_funktionen','x',funktion_ideal)
-            
+            # Daten auslesen            
+            data_funktion_train = trainingsdaten.filter(items=['x', 
+                                                               funktion_train])            
+            data_funktion_ideal =daten_ideale_funktionen.filter(items=['x', 
+                                                               funktion_ideal])          
+                        
             # Tabellen joinen und Abweichung pro Datenzeile ermitteln und 
             # Gesamtsumme aus quadr. Abweichen bilden'''        
             if funktion_train == funktion_ideal:
@@ -109,14 +86,12 @@ def get_fits_with_least_square_method(database,tablename_traindata = 'trainingsd
                                   join_table[f'{funktion_ideal}_ideal'])**2)
             else:
                 join_table= data_funktion_train.join(
-                                data_funktion_ideal.set_index('x'),on='x'
+                                    data_funktion_ideal.set_index('x'),on='x'
                                     )
-                quadr_abw =  sum(
-                                (
+                quadr_abw =  sum((
                                     join_table[funktion_train] - 
                                     join_table[funktion_ideal]
-                                  )**2
-                                )
+                                  )**2)
             
             # Alle Abweichungen je Trainingsdatenfunktion speichern
             Selektion_tmp.append({'train_funktion':funktion_train,'ideal_funktion':
@@ -138,18 +113,22 @@ def get_fits_with_least_square_method(database,tablename_traindata = 'trainingsd
                                                       'ideal_funktion', 
                                               'Max_Abweichung'])     
    
-    # maximale Abweichung je diaewl
+    # maximale Abweichung je idealer Funktion
     for i in range(1,5):
           funktion_train = f'y{i}'
-          trainingsdaten = read_data(database,'trainingsdaten','x',funktion_train)
+          
+          
+          data_funktion_train = trainingsdaten.filter(items=['x', 
+                                                             funktion_train])         
+          
           
           funktion_ideal = Tabelle_Ideale_Funktionen_tmp.loc[
                                 Tabelle_Ideale_Funktionen_tmp['train_funktion'] 
-                                == funktion_train].iloc[0]['ideal_funktion']
+                                   == funktion_train].iloc[0]['ideal_funktion']
           
-          daten_ideale_funktionen = read_data(database,'ideale_funktionen','x',
-                            funktion_ideal)
-          
+          data_funktion_ideal = daten_ideale_funktionen.filter(items=['x', 
+                                                               funktion_ideal])
+                   
           # Tabellen joinen und Abweichungen pro Datenzeile ermitteln'''        
           if funktion_train == funktion_ideal:             
               join_table = pd.merge(trainingsdaten, daten_ideale_funktionen, on="x", 
@@ -180,11 +159,11 @@ def get_fits_with_least_square_method(database,tablename_traindata = 'trainingsd
          
     return Tabelle_Ideale_Funktionen       
    
-''' 
-Funktion um Testdaten zu validieren, d. h. X-Y-Paare selektieren, die das Kriterium 
-in U-Abschnitt 2 erfüllen und in DataFrame ausgeben
-'''
-def validate_testdata(data_ideal_fits,test_data,database):        
+def validate_testdata(finale_ideale_funktionen,testdaten,daten_ideale_funktionen):   
+    ''' 
+    Funktion um Testdaten zu validieren, d. h. X-Y-Paare selektieren, die das Kriterium 
+    in U-Abschnitt 2 erfüllen und in DataFrame ausgeben
+    '''     
     
     # Leerer DataFrame für Ergebnisse erzeugen
     ergebnisdaten = pd.DataFrame(columns=['x','y','delta_y','funkt_nr'])                           
@@ -193,20 +172,24 @@ def validate_testdata(data_ideal_fits,test_data,database):
     # Funktion ermitteln
     for i in range(0,4):        
         
-        #Differenzen der Testwerte zu den idealen funktion ermitteln
-        funktion_ideal = data_ideal_fits.loc[i].at['ideal_funktion']
+        # Werte der idealen funktion auslesen
+        funktion_ideal = finale_ideale_funktionen.loc[i].at['ideal_funktion']
         
-        daten_ideale_funktion = read_data(database,'ideale_funktionen','x',funktion_ideal) 
+        # Trainingsdaten auslesen
+        data_funktion_ideal =daten_ideale_funktionen.filter(items=['x', 
+                                                               funktion_ideal])      
 
         # Tabellen über x mergen       
-        join_table = pd.merge(test_data, daten_ideale_funktion, on=["x"],how="inner")                   
+        join_table = pd.merge(testdaten, data_funktion_ideal, on=["x"],
+                              how="inner")                   
         
         # Abweichungen ermitteln, negative Vorzeichen raus rechnen
         join_table['delta_y'] = abs(join_table['y'] - join_table[funktion_ideal])
         join_table['funkt_nr']= funktion_ideal       
                
         # Ergebnis speichern
-        ergebnisdaten = pd.concat([ergebnisdaten,join_table[['x','y','delta_y','funkt_nr']]])        
+        ergebnisdaten = pd.concat([ergebnisdaten,join_table[['x','y','delta_y',
+                                                             'funkt_nr']]])        
     
     # Daten auf geringste Abweichung reduzieren   
     ergebnisdaten = pd.merge(
@@ -216,16 +199,14 @@ def validate_testdata(data_ideal_fits,test_data,database):
                              )    
     # Maximale Abweichung Trainingsdaten zu idealer Funktion dazu joinen 
     ergebnisdaten = pd.merge(ergebnisdaten,
-                             data_ideal_fits[['ideal_funktion','Max_Abweichung']]
+                             finale_ideale_funktionen[['ideal_funktion','Max_Abweichung']]
                              ,left_on=['funkt_nr'],right_on=['ideal_funktion'],how='left')
     
     #überflüssige Spalte löschen
-    ergebnisdaten = ergebnisdaten.drop(columns='ideal_funktion')
-    
+    ergebnisdaten = ergebnisdaten.drop(columns='ideal_funktion')    
     
     # Löschen Datenzeilen , in denen Abweichung um mehr als Faktor Wurzel 2 größer 
     # als max. Abweichung zwischen Trainingsdaten und idealer Funktion
-    
     ergebnisdaten.drop(ergebnisdaten[                                                                            
                                         (          
                                         ergebnisdaten['delta_y'] / 

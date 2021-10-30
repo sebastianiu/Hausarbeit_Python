@@ -8,34 +8,51 @@ Tutor: Stephan Fuehrer
 
 # unittest-Modul und eigenes Skript laden
 import unittest
-import data_processing
-from database import create_database_model
-from datetime import datetime
+from sqlalchemy import create_engine, MetaData,Table,Column,ForeignKey,Integer
+from sqlalchemy.orm import declarative_base,relationship
+from exceptions import DatabaseFileNotFoundError,DatabaseTableEmptyError
+import os
+from pandas import DataFrame
 
+# zu testendes Programmmodul
+import data_processing as dp
 
 # DB zum Testen erzeugen
-test_database = 'testdatenbank'
-create_database_model(test_database)
+# Engine-Objekt erzeugen
+test_database = 'test_datenbank_123'
+daten = {'x':[15,16,18],'y':[54,78,57]}
+checklist_x_values= 15,16,18
+testdaten = DataFrame(daten)
 
-falsche_database= '###.db'
-falsche_tabelle = '###'
-falsche_spalten = ['?','?','?']
+engine = create_engine(f'sqlite:///{test_database}.db',future = True,echo = True)     
+Base = declarative_base()
+        
+#Tabellen-Klassen definieren
+class testtabelle(Base):
+    __tablename__ = 'testtabelle'            
+    x = Column(Integer,primary_key=True)
+    y = Column(Integer)
+     
+# Alle Metadaten-Objekte (Tabellen) erzeugen
+Base.metadata.create_all(engine) 
 
-''' Testklasse für das modul data_processing, die die TestCases von unittest erbt '''
-class Test_data_processing(unittest.TestCase):
-    
-  # Test mit nicht existenter DB
-  def test_db_nicht_existent_read_data(self):
-      with self.assertRaises(FileNotFoundError):
-        data_processing.read_data(falsche_database,falsche_tabelle,*falsche_spalten)
+# Testdatentabelle mit Daten befüllen
+testdaten.to_sql('testtabelle',con=engine,if_exists='append',index = False,index_label = 'recordid')    
+
+''' Testklasse für das modul data_processing, die die TestCases von unittest 
+erbt 
+'''
+
+class Test_data_processing(unittest.TestCase):               
+    #   Testfall: Daten aus Tabelle auslesen
+    def test_read_data(self):        
+        data = dp.read_data(test_database,'testtabelle','x')
+        self.assertTrue(all([x in checklist_x_values for x in data['x']]))
         
-        
-  # Test mit nicht leerer Datenbanktabelle DB
-  def test_tabelle_ohne_Daten_read_data(self):
-      with self.assertRaises(KeyError):
-        data_processing.read_data(test_database,'testdaten','x','y')
- 
 # Skript im unittest-Kontext ausführen
 if __name__ == '__main__':
   unittest.main()
+ 
+# Test-Datenbank an Ende wieder löschen
+os.remove('test_datenbank_123.db')
  

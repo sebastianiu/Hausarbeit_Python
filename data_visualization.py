@@ -11,10 +11,14 @@ import bokeh as bk
 import numpy as np
 import fnmatch
 
-''' Funktion erstellt ein Scatter-Plot reale Daten und passende ideale Funktions-Daten'''   
-def create_scatter_plot_fuer_daten_und_ideale_funktionen(daten,liste_ideale_funktionen,
+def create_scatter_plot_fuer_daten_und_ideale_funktionen(daten,
+                                                         liste_ideale_funktionen,
                                                          daten_ideale_funktionen,
-                                                         titel):    
+                                                         titel):   
+    ''' 
+    Funktion erstellt ein Scatter-Plot reale Daten und passende ideale 
+    Funktions-Daten
+    ''' 
     # Style festlegen 
     plt.style.use('ggplot') 
     

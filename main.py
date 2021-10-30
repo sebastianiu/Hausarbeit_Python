@@ -12,6 +12,8 @@ from database import create_database_model
 from data_processing import read_data,get_fits_with_least_square_method,validate_testdata,read_data
 from data_visualization import create_scatter_plot_fuer_daten_und_ideale_funktionen
 
+from sqlalchemy import create_engine,select,text,MetaData
+from os import path
 
 # gewünschter Namen der SQLite-Datenbank definieren    
 database='db_hausarbeit_15'    
@@ -27,15 +29,24 @@ try:
     import_data(read_csv('ideal.csv'),'ideale_funktionen',database)
     import_data(read_csv('train.csv'),'trainingsdaten',database)
     
+    
+    # Trainingsdaten auslesen
+    trainingsdaten = read_data(database,'trainingsdaten','x','y1','y2','y3','y4')
+    
+                                                      
+    # Daten der idealen Funktionen auslesen
+    daten_ideale_funktionen  = read_data(database,'ideale_funktionen','x',
+                                         [f'y{i}' for i in range(1,51)])
+    
     # Beste Passungen zwischen Trainingsdaten und ideal Funktionen ermitteln 
-    daten_ideale_passungen = get_fits_with_least_square_method(database) 
+    daten_ideale_passungen = get_fits_with_least_square_method(trainingsdaten,daten_ideale_funktionen) 
 
     # Testdaten einlesen''' 
     testdaten = read_csv('test.csv')   
        
     # Testdaten mit Kriterium in U-Abschnitt 2 validieren    '''
     testdaten_validiert = validate_testdata(daten_ideale_passungen,testdaten,
-                                            database)  
+                                            daten_ideale_funktionen)  
   
     import_data(testdaten_validiert,'testdaten',database) 
     
@@ -50,27 +61,38 @@ finally:
     testdaten_validiert = read_data(database,'testdaten','x','y')
     
     # Liste aller ermittelten idealen Funktion erzeugen    
-    liste_ideale_funktionen = set(list(read_data(database,'testdaten',
+    liste_ermittelte_ideale_funktionen = set(list(read_data(database,'testdaten',
                                                  'funkt_nr')['funkt_nr']))
     
     # Daten der idealen Funktionen auslesen
     daten_ideale_funktionen  = read_data(database,'ideale_funktionen','x',
-                                         *liste_ideale_funktionen)
+                                         *liste_ermittelte_ideale_funktionen)  
+    
+    
     
     # Trainingsdaten visualisieren
     create_scatter_plot_fuer_daten_und_ideale_funktionen(
                                     trainingsdaten,
-                                    liste_ideale_funktionen,
+                                    liste_ermittelte_ideale_funktionen,
                                     daten_ideale_funktionen,
                                     titel='Trainingsdaten'
                                   )
     
     # Testdaten visualisieren
     create_scatter_plot_fuer_daten_und_ideale_funktionen(testdaten_validiert,
-                                  liste_ideale_funktionen,
+                                  liste_ermittelte_ideale_funktionen,
                                     daten_ideale_funktionen,
                                     titel='Validierte Testdaten'
-                                  )
+                                  )   
+    
+    
+    #engine = create_engine(f'sqlite:///testdatenbank.db',future = True,echo = True)  
+            
+           
+    #create_database_model('test123')
+        
+    #read_data('test123','testdaten','x','y')
+    
     
     
     
