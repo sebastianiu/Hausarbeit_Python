@@ -14,32 +14,32 @@ import fnmatch
 ''' Funktion erstellt ein Scatter-Plot reale Daten und passende ideale Funktions-Daten'''   
 def create_scatter_plot_fuer_daten_und_ideale_funktionen(daten,liste_ideale_funktionen,
                                                          daten_ideale_funktionen,
-                                                         titel='Trainingsdaten'):    
-    ''' Style festlegen '''
+                                                         titel):    
+    # Style festlegen 
     plt.style.use('ggplot') 
     
-    ''' figure erzeugen'''
+    # figure erzeugen 
     fig, ax = plt.subplots(figsize=(6,6)) 
 
-    ''' Grid hinzufügen '''
+    # Grid hinzufügen 
     ax.grid(True,color="k")           
    
-    ''' Liste mit Farben '''
+    # Liste mit Farben 
     farben_liste1 = ['red','orange','yellow','green']
     
     farbenwahl_index = 0
     
-    ''' Liste aller Y-Spalten erzeugen'''
+    # Liste aller Y-Spalten erzeugen
     y_spalten = fnmatch.filter(daten.columns,'y*')
     
-    '''Alle Punkte der idealen Funktionen mit Zufallsfarben zeichnen'''
+    # Alle Punkte der idealen Funktionen mit Zufallsfarben zeichnen
     for y_spalte in y_spalten:    
              
-        ''' x-/y-Werte aus Datenbanktabelle auslesen'''
+        # x-/y-Werte aus Datenbanktabelle auslesen
         X = daten['x']
         Y = daten[y_spalte]    
           
-        ''' Zeichne Punkte'''
+        # Zeichne Punkte
         ax.scatter(
                X
                ,Y
@@ -52,19 +52,19 @@ def create_scatter_plot_fuer_daten_und_ideale_funktionen(daten,liste_ideale_funk
        
     farbenwahl_index = 0
     
-    '''Alle Punkte der idealen Funktionen zeichnen'''
+    # Alle Punkte der idealen Funktionen zeichnen
     farben_liste_ideale_funktionen = ['blue','purple','midnightblue','magenta']
     
     farbenwahl_index = 0
     
-    '''Alle Punkte der idealen Funktionen mit Zufallsfarben zeichnen'''
+    # Alle Punkte der idealen Funktionen mit Zufallsfarben zeichnen
     for nr_ideale_funktion in liste_ideale_funktionen:    
              
-        ''' x-/y-Werte aus Datenbanktabelle auslesen'''
+        # x-/y-Werte aus Datenbanktabelle auslesen
         X = daten_ideale_funktionen['x']
         Y = daten_ideale_funktionen[nr_ideale_funktion]    
           
-        ''' Zeichne Punkte'''
+        # Zeichne Punkte
         ax.scatter(
                X
                ,Y
@@ -75,7 +75,7 @@ def create_scatter_plot_fuer_daten_und_ideale_funktionen(daten,liste_ideale_funk
         
         farbenwahl_index += 1  
         
-    '''Visualisierung einblenden '''   
+    # Visualisierung mit definierten Parametern einblenden    
     plt.title(titel)
     plt.xlabel('x')
     plt.ylabel('y')

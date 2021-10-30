@@ -6,5 +6,16 @@ Autor: Sebastian Kinnast Matrikelnr.: 32112741
 Tutor: Stephan Fuehrer
 '''
 
-class databasefilenotfound(LookupError):
-    print('Datenbank.-Datei nicht gefunden')
+''' Benutzedefinierte Exceptions '''
+
+''' Exception für den Fall, dass die abgefragte Datenbank-Datei nicht existiert '''
+class databasefilenotfound(FileNotFoundError):
+      # Konstruktor definieren
+      def __init__(self):
+      
+          # eine eigene Nachricht als Attribut definieren 
+          error_message = 'Datenbank-Datei im vorgegebenen Verzeichnis nicht gefunden.'
+          self.error_message = error_message
+    
+    
+    

@@ -10,15 +10,20 @@ from sqlalchemy.orm import declarative_base,relationship
 import pandas as pd
 import os,sys
 
+''' 
+Funktion zur Erstellung der SQLite-Datenbank-Datei und den erfoderlichen 
+Tabellen
+'''
 def create_database_model(Datenbankname):
-     # Existenz feststellen
+     # Pürfuen ob zu erstellende Datei bereits existiert
      if os.path.exists(f'{Datenbankname}.db'):
          raise RuntimeError(f'Datenbankdatei "{Datenbankname}.db" ist bereits im Verzeichnis vorhanden.')
      else:       
-        '''Engine-Objekt erzeugen'''
+        # Engine-Objekt erzeugen
         engine = create_engine(f'sqlite:///{Datenbankname}.db',future = True,echo = True)     
         Base = declarative_base()
         
+        #Tabellen-Klassen definieren
         class testdaten(Base):
             __tablename__ = 'testdaten'            
             x = Column(Float,primary_key=True)
@@ -88,7 +93,7 @@ def create_database_model(Datenbankname):
             y49 = Column(Float)
             y50 = Column(Float)            
     
-        """ Alle Metadaten-Objekte erzeugen """
+        #Alle Metadaten-Objekte (Tabellen) erzeugen
         Base.metadata.create_all(engine)      
               
         print(f'\nNeue Datenbank-Datei {Datenbankname} erzeugt und Tabellen generiert.\n')
