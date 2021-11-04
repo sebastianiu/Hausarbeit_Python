@@ -34,6 +34,26 @@ class DatabaseTableEmptyError(LookupError):
         error_message = 'Datenbank-Tabelle enthält keine Daten.'
         self.error_message = error_message
         
+class DatabaseTableAlreadyFullError(LookupError):
+    ''' Exception wenn Tabelle als Importziel bereits Daten enthält '''
+    # Konstruktor definieren
+    def __init__(self):
+        # eine eigene Nachricht als Attribut definieren 
+        error_message = 'Datenbank-Tabelle enthält bereits Daten.'
+        self.error_message = error_message      
+        
+        
+class DataFrameEmptyError(LookupError):
+    ''' Exception wenn abgefragtes DataFrame keine Daten enthält '''
+    # Konstruktor definieren
+    def __init__(self):
+        # eine eigene Nachricht als Attribut definieren 
+        error_message = 'DataFrame enthält keine Daten.'
+        self.error_message = error_message
+        
+        
+        
+        
         
         
     
