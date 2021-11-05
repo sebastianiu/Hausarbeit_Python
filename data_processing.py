@@ -48,15 +48,16 @@ def import_data(data,table,databasename):
                         engine = create_engine(f'sqlite:///{databasename}.db',future = True,echo = True)
                        
                         # Prüfen, ob Daten nicht schon vorhanden sind
-                        con = engine.connect()    
-                        result = con.execute(text(f'select * from {table}'))
-                               
-                        if len(result.all()) == 0:                   
-                            # Daten importieren
-                            data.to_sql(table,con=engine,if_exists='append',index = False,index_label = 'recordid')  
-                            print(f'(data_import) Daten in Tabelle {table} importiert.\n')
-                        else:
-                           raise DatabaseTableAlreadyFullError  
+                        with engine.connect() as con:
+                            # Daten aus Tabelle abfragen
+                            result = con.execute(text(f'select * from {table}'))    
+                           
+                            if len(result.all()) == 0:                   
+                                # Daten importieren
+                                data.to_sql(table,con=engine,if_exists='append',index = False,index_label = 'recordid')  
+                                print(f'(data_import) Daten in Tabelle {table} importiert.\n')
+                            else:
+                               raise DatabaseTableAlreadyFullError  
                     except DatabaseTableAlreadyFullError:
                         print(DatabaseTableAlreadyFullError().error_message)
                 else:
