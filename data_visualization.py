@@ -1,5 +1,7 @@
 '''
-Programmmodul fuer die Hausarbeit zum Kurs  DLMDWPMP01 - Programmieren mit Python
+Programmmodul für Funktionen zur Datenvisualisierung
+
+zue Hausarbeit zum Kurs  DLMDWPMP01 - Programmieren mit Python
 
 Autor: Sebastian Kinnast Matrikelnr.: 32112741
 
@@ -55,7 +57,7 @@ def create_scatter_plot_fuer_daten_und_ideale_funktionen(daten,
                        ,Y
                        ,s = 75
                        ,c=farben_liste1[farbenwahl_index]
-                       ,label = f'{y_spalte} (trainingsdaten)'
+                       ,label = f'{y_spalte} (Daten)'
                        ) 
                 
                 farbenwahl_index += 1 

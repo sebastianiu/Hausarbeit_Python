@@ -1,6 +1,7 @@
 '''
 Programmmodul für die Datenmodell-Erstellung
-fuer die Hausarbeit zum Kurs  DLMDWPMP01 - Programmieren mit Python
+
+zur die Hausarbeit zum Kurs  DLMDWPMP01 - Programmieren mit Python
 
 Autor: Sebastian Kinnast Matrikelnr.: 32112741
 

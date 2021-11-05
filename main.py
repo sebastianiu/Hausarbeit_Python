@@ -1,5 +1,7 @@
 """
-Hauptprogramm fuer die Hausarbeit zum Kurs  DLMDWPMP01 - Programmieren mit Python
+Hauptprogramm-Modul
+
+zur Hausarbeit zum Kurs  DLMDWPMP01 - Programmieren mit Python
 
 Autor: Sebastian Kinnast Matrikelnr.: 32112741
 
@@ -7,15 +9,13 @@ Tutor: Stephan Fuehrer
 """
 
 # Passende Funktionen aus Modulen importieren
-from data_import_export import import_data,read_csv
 from database import create_database_model 
-from data_processing import read_data,get_fits_with_least_square_method,validate_testdata,read_data
+from data_processing import read_data,get_fits_with_least_square_method,\
+    validate_testdata,read_data,import_data,read_csv
+    
 from data_visualization import create_scatter_plot_fuer_daten_und_ideale_funktionen
 
-from sqlalchemy import create_engine,select,text,MetaData
-from os import path
 
-import pandas as pd
 
 # gewünschter Namen der SQLite-Datenbank definieren    
 database='db_hausarbeit_15'    
@@ -67,7 +67,7 @@ create_scatter_plot_fuer_daten_und_ideale_funktionen(
                                     trainingsdaten,
                                     liste_ermittelte_ideale_funktionen,
                                     daten_ideale_funktionen,
-                                    titel='Trainingsdaten'
+                                    titel='Trainingsdaten & passende ideale Funktionen'
                                   )
     
 # Testdaten visualisieren

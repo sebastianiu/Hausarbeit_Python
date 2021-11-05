@@ -1,5 +1,7 @@
 '''
-Programmmodul fuer die Hausarbeit zum Kurs  DLMDWPMP01 - Programmieren mit Python
+Programmmodul Programmmodul für Daten-Import und Export-Funktionen
+
+zur Hausarbeit zum Kurs  DLMDWPMP01 - Programmieren mit Python
 
 Autor: Sebastian Kinnast Martikelnr.: 32112741
 

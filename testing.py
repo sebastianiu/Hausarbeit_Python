@@ -1,5 +1,7 @@
 '''
-Programmmodul fuer die Hausarbeit zum Kurs  DLMDWPMP01 - Programmieren mit Python
+Programmmodul für Tests
+
+zur Hausarbeit zum Kurs  DLMDWPMP01 - Programmieren mit Python
 
 Autor: Sebastian Kinnast Matrikelnr.: 32112741
 
@@ -8,14 +10,18 @@ Tutor: Stephan Fuehrer
 
 # unittest-Modul und eigenes Skript laden
 import unittest
-from sqlalchemy import create_engine, MetaData,Table,Column,ForeignKey,Integer
+from sqlalchemy import create_engine, MetaData,Table,Column,ForeignKey,Integer,\
+    text
 from sqlalchemy.orm import declarative_base,relationship
 from user_exceptions import DatabaseFileNotFoundError,DatabaseTableEmptyError
 import os
 from pandas import DataFrame
+from os import path
 
-# zu testendes Programmmodul
+# zu testende Programmmodule
 import data_processing as dp
+import database as db
+import data_import_export as d
 
 # DB zum Testen erzeugen
 # Engine-Objekt erzeugen
@@ -49,10 +55,22 @@ class testtabelle(Base):
 Base.metadata.create_all(engine) 
 
 # Testdatentabelle mit Daten befüllen
-trainingsdaten.to_sql('testtabelle',con=engine,if_exists='append',
-                      index = False,index_label = 'recordid')    
+#trainingsdaten.to_sql('testtabelle',con=engine,if_exists='append',
+                      #index = False,index_label = 'recordid')    
 
-class Test_data_processing(unittest.TestCase):                   
+class Test_data_processing(unittest.TestCase): 
+    
+    ''' Testfall: Daten in Tabelle importieren '''
+    def test_import_data(self):        
+        d.import_data(trainingsdaten,'testtabelle',test_database)
+        con = engine.connect()    
+        result = con.execute(text(f'select * from testtabelle')) 
+        
+        # Prüfen, ob Daten in Tabelle vorhanden sind
+        self.assertTrue(len(result.all()) == 0) 
+        
+
+                  
     ''' Testfall: Daten aus Tabelle auslesen '''
     def test_read_data(self):        
         data = dp.read_data(test_database,'testtabelle','x')
@@ -70,19 +88,25 @@ class Test_data_processing(unittest.TestCase):
     ''' Testfall Testdaten validieren'''    
     def test_validate_testdata(self):
         ideale_passungen = dp.get_fits_with_least_square_method(
-                                                            trainingsdaten,
-                                                            daten_ideale_funktionen)
+                                                        trainingsdaten,
+                                                        daten_ideale_funktionen)
         
         data = dp.validate_testdata(ideale_passungen,testdaten,daten_ideale_funktionen)
-        # Zeile für Zeile prüfen ob X-Wert mit Checkliste übereinstimmt
+        # Zeile für Zeile prüfen ob y-Wert mit Checkliste übereinstimmt
         self.assertTrue(all([y in checklist_y_values for y in \
-                             data['y']]))      
+                             data['y']])) 
+            
+class Test_database(unittest.TestCase):                   
+    ''' Testfall: Datenbank erstellen '''
+    def test_create_database_model(self):        
+        data = db.create_database_model(test_database)
         
-       
+        # prüfen ob erzeugte Datenbankdatei im filesystem existiert
+        self.assertTrue(path.exists(f'{test_database}.db')) 
         
 # Skript im unittest-Kontext ausführen
 if __name__ == '__main__':
-  unittest.main()
+    unittest.main()
  
 # Test-Datenbank am Ende wieder löschen
 os.remove(f'{test_database}.db')
