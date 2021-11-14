@@ -47,7 +47,8 @@ def import_data(data,table,databasename):
         if data.empty == False:            
             try:
                 # Prüfen, ob SQLite-Datenbank-Datei im Verzeichnis exitiert
-                if path.exists(f'{databasename}.db') == True:                     
+                if path.exists(f'{databasename}.db') == True: 
+                    
                     try:
                         # Mit SQLite-Datenbank verbinden
                         engine = create_engine(f'sqlite:///{databasename}.db',future = True,echo = True)
@@ -77,6 +78,40 @@ def import_data(data,table,databasename):
         print(ue.DataFrameEmptyError().error_message)
 
 
+def read_data(database,table,*columnames):
+    '''Funktion liest Spalten aus einer Datenbanktabelle aus und speichert Inhalt \
+    in einem DataRame
+    '''
+    try:
+        # Prüfen, ob DB-Datei exisiert
+        if path.exists(f'{database}.db'):            
+            # Mit SQLite-Datenbank verbinden'''
+            engine = create_engine(f'sqlite:///{database}.db',future = True,echo = True)   
+            
+            # Prüfen, ob auslesbare Daten vorhanden
+            try:               
+                with engine.connect() as con:
+                    # Daten aus Tabelle abfragen
+                    result = con.execute(text(f'select * from {table}'))
+                    
+                    if len(result.all()) > 0:
+                        data = pd.read_sql_table(
+                                    table, con, schema=None, index_col=None, 
+                                    coerce_float=True, parse_dates=None, 
+                                    columns=(columnames), chunksize=None
+                                    )                    
+                        return data                
+                    else:
+                        raise ue.DatabaseTableEmptyError                     
+            except ue.DatabaseTableEmptyError:
+                print(ue.DatabaseTableEmptyError().error_message) 
+                
+        else:
+            raise ue.DatabaseFileNotFoundError
+            
+    except ue.DatabaseFileNotFoundError:
+        print(ue.DatabaseFileNotFoundError().error_message) 
+    
 def get_fits_with_least_square_method(trainingsdaten,daten_ideale_funktionen):    
     ''' Funktion, um die vier besten Passungen zwischen Trainingsdaten und 
     idealen Funktionen mit least suqare Methode zu ermittelt und 
