@@ -15,8 +15,7 @@ from os import path
 import sys
 import numpy as np
 import pandas as pd
-from user_exceptions import DatabaseFileNotFoundError,DatabaseTableEmptyError,\
-    DataFrameEmptyError,DatabaseTableAlreadyFullError
+import  user_exceptions as ue
 import fnmatch
 
 
@@ -24,10 +23,17 @@ def read_csv(file):
     ''' Funktion zum Auslesen von Daten aus einer CSV-Datei'''
     try:
         # Prüfen, ob Datei im verzeichnis exitiert
-        if path.exists(file) == True:             
-            # Daten aus CSV-Datei auslesen und in dataframe speichern
-            data = pd.read_csv(file,header=0)        
-            return data
+        if path.exists(file) == True:   
+            # Prüfen, ob es sich um eine CSV-Datei handelt
+            try:
+                if file.endswith('csv') == True:
+                    # Daten aus CSV-Datei auslesen und in dataframe speichern
+                    data = pd.read_csv(file,header=0)        
+                    return data
+                else:                    
+                    raise ue.WrongFileFormatError
+            except ue.WrongFileFormatError:
+                print(ue.DataFrameEmptyError().error_message)                
         else:
             raise FileNotFoundError
     except FileNotFoundError:
@@ -41,8 +47,7 @@ def import_data(data,table,databasename):
         if data.empty == False:            
             try:
                 # Prüfen, ob SQLite-Datenbank-Datei im Verzeichnis exitiert
-                if path.exists(f'{databasename}.db') == True: 
-                    
+                if path.exists(f'{databasename}.db') == True:                     
                     try:
                         # Mit SQLite-Datenbank verbinden
                         engine = create_engine(f'sqlite:///{databasename}.db',future = True,echo = True)
@@ -57,55 +62,21 @@ def import_data(data,table,databasename):
                                 data.to_sql(table,con=engine,if_exists='append',index = False,index_label = 'recordid')  
                                 print(f'(data_import) Daten in Tabelle {table} importiert.\n')
                             else:
-                               raise DatabaseTableAlreadyFullError  
-                    except DatabaseTableAlreadyFullError:
-                        print(DatabaseTableAlreadyFullError().error_message)
+                               raise ue.DatabaseTableAlreadyFullError  
+                    except ue.DatabaseTableAlreadyFullError:
+                        print(ue.DatabaseTableAlreadyFullError().error_message)
                 else:
-                    raise DatabaseFileNotFoundError
+                    raise ue.DatabaseFileNotFoundError
                     
-            except DatabaseFileNotFoundError:
-                print(DatabaseFileNotFoundError().error_message)
+            except ue.DatabaseFileNotFoundError:
+                print(ue.DatabaseFileNotFoundError().error_message)
             else:
-                raise DataFrameEmptyError 
+                raise ue.DataFrameEmptyError 
             
-    except DataFrameEmptyError:
-        print(DataFrameEmptyError().error_message)
+    except ue.DataFrameEmptyError:
+        print(ue.DataFrameEmptyError().error_message)
 
 
-def read_data(database,table,*columnames):
-    '''Funktion liest Spalten aus einer Datenbanktabelle aus und speichert Inhalt \
-    in einem DataRame
-    '''
-    try:
-        # Prüfen, ob DB-Datei exisiert
-        if path.exists(f'{database}.db'):            
-            # Mit SQLite-Datenbank verbinden'''
-            engine = create_engine(f'sqlite:///{database}.db',future = True,echo = True)   
-            
-            # Prüfen, ob auslesbare Daten vorhanden
-            try:               
-                with engine.connect() as con:
-                    # Daten aus Tabelle abfragen
-                    result = con.execute(text(f'select * from {table}'))
-                    
-                    if len(result.all()) > 0:
-                        data = pd.read_sql_table(
-                                    table, con, schema=None, index_col=None, 
-                                    coerce_float=True, parse_dates=None, 
-                                    columns=(columnames), chunksize=None
-                                    )                    
-                        return data                
-                    else:
-                        raise DatabaseTableEmptyError                     
-            except DatabaseTableEmptyError:
-                print(DatabaseTableEmptyError().error_message) 
-                
-        else:
-            raise DatabaseFileNotFoundError
-            
-    except DatabaseFileNotFoundError:
-        print(DatabaseFileNotFoundError().error_message) 
-    
 def get_fits_with_least_square_method(trainingsdaten,daten_ideale_funktionen):    
     ''' Funktion, um die vier besten Passungen zwischen Trainingsdaten und 
     idealen Funktionen mit least suqare Methode zu ermittelt und 
@@ -241,9 +212,9 @@ def get_fits_with_least_square_method(trainingsdaten,daten_ideale_funktionen):
                                             },ignore_index=True)
             return Tabelle_Ideale_Funktionen 
         else:
-            raise DataFrameEmptyError
-    except DataFrameEmptyError:
-            print(DataFrameEmptyError().error_message) 
+            raise ue.DataFrameEmptyError
+    except ue.DataFrameEmptyError:
+            print(ue.DataFrameEmptyError().error_message) 
    
 def validate_testdata(ideale_passungen,testdaten,gesamtdaten_ideale_funktionen):   
     ''' 
@@ -326,7 +297,7 @@ def validate_testdata(ideale_passungen,testdaten,gesamtdaten_ideale_funktionen):
             
             return ergebnisdaten
         else:
-            raise DataFrameEmptyError
+            raise ue.DataFrameEmptyError
             
-    except DataFrameEmptyError:
-        print(DataFrameEmptyError().error_message)
+    except ue.DataFrameEmptyError:
+        print(ue.DataFrameEmptyError().error_message)

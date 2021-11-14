@@ -7,7 +7,7 @@ Autor: Sebastian Kinnast Matrikelnr.: 32112741
 
 Tutor: Stephan Fuehrer
 '''
-from sqlalchemy import create_engine, MetaData, Table, Column, Float,ForeignKey,String
+from sqlalchemy import create_engine, MetaData, Table, Column, Float,String
 from sqlalchemy.orm import declarative_base,relationship
 import pandas as pd
 import os,sys
@@ -22,7 +22,9 @@ def create_database_model(Datenbankname):
         # Prüfen ob zu erstellende Datei bereits existiert
         if os.path.exists(f'{Datenbankname}.db') == False:              
             # Engine-Objekt erzeugen
-            engine = create_engine(f'sqlite:///{Datenbankname}.db',future = True,echo = True)     
+            engine = create_engine(f'sqlite:///{Datenbankname}.db',future = True,
+                                   echo = True)     
+            
             Base = declarative_base()
             
             #Tabellen-Klassen definieren
@@ -97,8 +99,10 @@ def create_database_model(Datenbankname):
                 
             #Alle Metadaten-Objekte (Tabellen) erzeugen
             Base.metadata.create_all(engine)                  
-            print(f'\nNeue Datenbank-Datei {Datenbankname} erzeugt und Tabellen generiert.\n')  
-                
+            print(f'\nNeue Datenbank-Datei {Datenbankname} erzeugt und ' 
+                  'Tabellen generiert.\n')  
+            
+                            
         else:
             raise DatabaseFileAlreadyExists           
             
