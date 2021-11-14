@@ -51,7 +51,8 @@ def import_data(data,table,databasename):
                     
                     try:
                         # Mit SQLite-Datenbank verbinden
-                        engine = create_engine(f'sqlite:///{databasename}.db',future = True,echo = True)
+                        engine = create_engine(f'sqlite:///{databasename}.db',
+                                               future = True,echo = True)
                        
                         # Prüfen, ob Daten nicht schon vorhanden sind
                         with engine.connect() as con:
@@ -60,8 +61,13 @@ def import_data(data,table,databasename):
                            
                             if len(result.all()) == 0:                   
                                 # Daten importieren
-                                data.to_sql(table,con=engine,if_exists='append',index = False,index_label = 'recordid')  
-                                print(f'(data_import) Daten in Tabelle {table} importiert.\n')
+                                data.to_sql(table,con=engine,
+                                            if_exists='append',
+                                            index = False,
+                                            index_label = 'recordid'
+                                            )  
+                                print(f'(data_import) Daten in Tabelle {table} '
+                                      'importiert.\n')
                             else:
                                raise ue.DatabaseTableAlreadyFullError  
                     except ue.DatabaseTableAlreadyFullError:
@@ -86,7 +92,8 @@ def read_data(database,table,*columnames):
         # Prüfen, ob DB-Datei exisiert
         if path.exists(f'{database}.db'):            
             # Mit SQLite-Datenbank verbinden'''
-            engine = create_engine(f'sqlite:///{database}.db',future = True,echo = True)   
+            engine = create_engine(f'sqlite:///{database}.db',future = True,
+                                   echo = True)   
             
             # Prüfen, ob auslesbare Daten vorhanden
             try:               
@@ -133,8 +140,8 @@ def get_fits_with_least_square_method(trainingsdaten,daten_ideale_funktionen):
             # quadr. Abweichungen zwischen Trainingsdaten und idealen 
             # Funktionen ermitteln 
             
-            # Zwei Listen aller Y-Spalten in Traininsgdaten und idealen Funtkionen 
-            # erzeugen
+            # Zwei Listen aller Y-Spalten in Traininsgdaten und idealen 
+            # Funktionen erzeugen
             trainingsdaten_y_spalten = fnmatch.filter(trainingsdaten.columns,
                                                       'y*')            
             ideale_funktionen_y_spalten = fnmatch.filter(
