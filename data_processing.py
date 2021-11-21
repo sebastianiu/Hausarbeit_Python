@@ -206,11 +206,9 @@ def get_fits_with_least_square_method(trainingsdaten,daten_ideale_funktionen):
                                                               'ideal_funktion', 
                                                       'Max_Abweichung'])     
            
-            # maximale Abweichung je dealer Funktion
-            #for i in range(1,5):
+            # maximale Abweichung je Trainingsdatenfunktion und idealer Funktion 
+            # ermitteln
             for funktion_train in trainingsdaten_y_spalten:
-                  #funktion_train = f'y{i}'                  
-                  
                   data_funktion_train = trainingsdaten.filter(items=['x', 
                                                             funktion_train])                  
                   
@@ -248,9 +246,9 @@ def get_fits_with_least_square_method(trainingsdaten,daten_ideale_funktionen):
                   
                   Tabelle_Ideale_Funktionen = Tabelle_Ideale_Funktionen.append(
                                           {
-                                            'train_funktion':funktion_train,
-                                            'ideal_funktion':funktion_ideal,
-                                            'Max_Abweichung':Max_Abweichung
+                                            'train_funktion' : funktion_train,
+                                            'ideal_funktion' : funktion_ideal,
+                                            'Max_Abweichung' : Max_Abweichung
                                             },ignore_index=True)
             return Tabelle_Ideale_Funktionen 
         else:
