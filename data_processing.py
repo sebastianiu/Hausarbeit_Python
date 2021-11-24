@@ -290,7 +290,7 @@ def validate_testdata(ideale_passungen,testdaten,gesamtdaten_ideale_funktionen):
                                       how="inner")                   
                 
                 # Abweichungen ermitteln, negative Vorzeichen raus rechnen
-                join_table['delta_y'] = abs(join_table['y'] - join_table[funktion_ideal])
+                join_table['delta_y'] = (join_table['y'] - join_table[funktion_ideal])**2
                 join_table['funkt_nr'] = funktion_ideal       
                        
                 # Ergebnis speichern

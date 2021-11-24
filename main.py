@@ -51,7 +51,7 @@ trainingsdaten = dp.read_data(database,'trainingsdaten','x','y1','y2','y3','y4')
 # Validierte Testdaten auslesen
 testdaten_validiert = dp.read_data(database,'testdaten','x','y')
     
-# Liste aller ermittelten idealen Funktion erzeugen    
+# Liste aller ermittelten idealen Funktionen erzeugen    
 liste_ermittelte_ideale_funktionen = set(list(dp.read_data(database,'testdaten',
                                                  'funkt_nr')['funkt_nr']))
 # Daten der idealen Funktionen auslesen
@@ -71,8 +71,7 @@ dv.create_scatter_plot_fuer_daten_und_ideale_funktionen(testdaten_validiert,
                                   liste_ermittelte_ideale_funktionen,
                                     daten_ideale_funktionen,
                                     titel='Validierte Testdaten'
-                                  )     
-    
+                                  )  
    
     
 
