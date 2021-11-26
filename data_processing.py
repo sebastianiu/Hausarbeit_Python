@@ -9,15 +9,13 @@ Tutor: Stephan Fuehrer
 '''
 
 # Erfoderliche Pakete importieren
-from sqlalchemy import create_engine,select,text,MetaData
-from sqlalchemy.orm import declarative_base
+from sqlalchemy import create_engine,select,text
 from os import path
 import sys
 import numpy as np
 import pandas as pd
 import  user_exceptions as ue
 import fnmatch
-
 
 def read_csv(file): 
     ''' Funktion zum Auslesen von Daten aus einer CSV-Datei'''

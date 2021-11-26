@@ -9,7 +9,6 @@ Tutor: Stephan Fuehrer
 '''
 from sqlalchemy import create_engine, MetaData, Table, Column, Float,String
 from sqlalchemy.orm import declarative_base,relationship
-import pandas as pd
 import os,sys
 from user_exceptions import DatabaseFileAlreadyExists
 

@@ -14,10 +14,20 @@ import data_processing as dp
 import data_visualization as dv
 
 # gewünschter Namen der SQLite-Datenbank definieren    
-database='db_hausarbeit_15'    
-# input('Definieren Sie einen Namen Für die Datenbank, die erzeugt werden muss (Programm mit "-exit" Beenden)')#'db_hausarbeit_13'  
+# database='db_hausarbeit_15'   
 
-    
+database = input(
+                 'Definieren Sie einen Namen Für die Datenbank, die erzeugt '                 
+                 'werden muss (Programm mit "exit" Beenden). Die CSV-Dateien '
+                 'mit den Beispieldaten müssen im Programmverzeichnis liegen. '
+                 )
+
+if database == 'exit':
+    exit()
+else:
+    pass    
+
+ 
 # SQLite-Datenbank erzeugen
 db.create_database_model(database)
     
@@ -63,7 +73,8 @@ dv.create_scatter_plot_fuer_daten_und_ideale_funktionen(
                                     trainingsdaten,
                                     liste_ermittelte_ideale_funktionen,
                                     daten_ideale_funktionen,
-                                    titel='Trainingsdaten & passende ideale Funktionen'
+                                    titel='Trainingsdaten & passende ideale '
+                                    'Funktionen'
                                   )
     
 # Testdaten visualisieren
