@@ -17,11 +17,9 @@ from user_exceptions import DataFrameEmptyError
 def create_scatter_plot_fuer_daten_und_ideale_funktionen(daten,
                                                          liste_ideale_funktionen,
                                                          daten_ideale_funktionen,
-                                                         titel):   
-    ''' 
-    Funktion erstellt ein Scatter-Plot reale Daten und passende ideale 
-    Funktions-Daten
-    '''     
+                                                         titel): 
+    ''' Funktion erstellt ein Scatter-Plot reale Daten und passende ideale 
+    Funktions-Daten   '''     
     try:
         # Prüfen, ob Funktionsargumente Daten enthalten
         if len(liste_ideale_funktionen) > 0 and daten_ideale_funktionen.empty\
@@ -66,9 +64,7 @@ def create_scatter_plot_fuer_daten_und_ideale_funktionen(daten,
             
             # Alle Punkte der idealen Funktionen zeichnen
             farben_liste_ideale_funktionen = ['blue','purple','midnightblue',
-                                              'magenta']
-            
-            farbenwahl_index = 0
+                                              'magenta']                   
             
             # Alle Punkte der idealen Funktionen mit Zufallsfarben zeichnen
             for nr_ideale_funktion in liste_ideale_funktionen:    
