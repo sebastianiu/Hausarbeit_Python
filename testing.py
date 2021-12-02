@@ -24,22 +24,6 @@ import database as db
 test_database = 'test_datenbank_123'
 test_database2 = 'test_datenbank_124'
 
-#Testdaten erzeugen
-trainingsdaten = pd.DataFrame({'x':[15,16,18],'y1':[54,78,57],'y2':[87,97,107]})
-
-#Leerer DataFrame für Gegentests
-trainingsdaten2 = pd.DataFrame(columns=['x','y','delta_y','funkt_nr']) 
-
-checklist_trainingsdaten_x_values= 15,16,18
-
-daten_ideale_funktionen = pd.DataFrame({'x':[15,16,18],'y10':[55,79,59],
-                                     'y15':[80,90,100],'y25':[88,98,108]})
-
-checklist_ideale_funktionen = ['y10','y25']
-
-testdaten = pd.DataFrame({'x':[15,16,18,100],'y':[55,79,200,300]})
-checklist_testdaten_y_values = [55,79,200]
-
 #Testdatenbank erzeugen
 engine = sl.create_engine(f'sqlite:///{test_database}.db',future = True,
                        echo = True)
@@ -53,8 +37,25 @@ class testtabelle(Base):
     y2 = sl.Column(sl.Integer)
      
 # Alle Metadaten-Objekte (Tabellen) erzeugen
-Base.metadata.create_all(engine)   
+Base.metadata.create_all(engine) 
 
+#Testdaten erzeugen
+trainingsdaten = pd.DataFrame({'x':[15,16,18],'y1':[54,78,57],'y2':[87,97,107]})
+
+#Leerer DataFrame für Gegentest
+trainingsdaten2 = pd.DataFrame(columns=['x','y','delta_y','funkt_nr']) 
+
+checklist_trainingsdaten_x_values= 15,16,18
+
+daten_ideale_funktionen = pd.DataFrame({'x':[15,16,18],'y10':[55,79,59],
+                                     'y15':[80,90,100],'y25':[88,98,108]})
+
+checklist_ideale_funktionen = ['y10','y25']
+
+testdaten = pd.DataFrame({'x':[15,16,18,100],'y':[55,79,200,300]})
+checklist_testdaten_y_values = [55,79,200]
+
+  
 class Test_data_processing(unittest.TestCase):     
     ''' Testfall: Daten in Tabelle importieren '''
     def test_import_data(self):        

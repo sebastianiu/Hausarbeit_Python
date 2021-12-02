@@ -17,16 +17,20 @@ import data_visualization as dv
 # database='db_hausarbeit_15'   
 
 database = input(
+                 'PROGRAMM ZUR HAUSARBEIT des Kurses Programmieren ' 
+                 'mit Python (DLMDWPMP01)\n'
+                 '**************************************************************'
+                 '**********\n'
                  'Definieren Sie einen Namen Für die Datenbank, die erzeugt '                 
-                 'werden muss (Programm mit "exit" Beenden). Die CSV-Dateien '
-                 'mit den Beispieldaten müssen im Programmverzeichnis liegen. '
+                 'werden muss (Programm mit "exit" Beenden).\n'
+                 'Die CSV-Dateien mit den Beispieldaten müssen im '
+                 'Programmverzeichnis liegen. '
                  )
 
 if database == 'exit':
     exit()
 else:
     pass    
-
  
 # SQLite-Datenbank erzeugen
 db.create_database_model(database)
@@ -44,7 +48,8 @@ daten_ideale_funktionen  = dp.read_data(database,'ideale_funktionen','x',
                                          *[f'y{i}' for i in range(1,51)])
     
 # Beste Passungen zwischen Trainingsdaten und ideal Funktionen ermitteln 
-daten_ideale_passungen = dp.get_fits_with_least_square_method(trainingsdaten,daten_ideale_funktionen) 
+daten_ideale_passungen = dp.get_fits_with_least_square_method(trainingsdaten,
+                                                     daten_ideale_funktionen) 
 
 # Testdaten einlesen 
 testdaten = dp.read_csv('test.csv')   
@@ -69,8 +74,7 @@ daten_ideale_funktionen  = dp.read_data(database,'ideale_funktionen','x',
                                          *liste_ermittelte_ideale_funktionen)  
     
 # Trainingsdaten visualisieren
-dv.create_scatter_plot_fuer_daten_und_ideale_funktionen(
-                                    trainingsdaten,
+dv.create_scatter_plot_fuer_daten_und_ideale_funktionen(trainingsdaten,
                                     liste_ermittelte_ideale_funktionen,
                                     daten_ideale_funktionen,
                                     titel='Trainingsdaten & passende ideale '

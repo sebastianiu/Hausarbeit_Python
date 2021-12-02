@@ -13,6 +13,7 @@ import bokeh as bk
 import numpy as np
 import fnmatch
 from user_exceptions import DataFrameEmptyError
+import time as t
 
 def create_scatter_plot_fuer_daten_und_ideale_funktionen(daten,
                                                          liste_ideale_funktionen,
@@ -29,8 +30,8 @@ def create_scatter_plot_fuer_daten_und_ideale_funktionen(daten,
             plt.style.use('ggplot') 
             
             # figure erzeugen 
-            fig, ax = plt.subplots(figsize=(6,6)) 
-        
+            fig, ax = plt.subplots(figsize=(6,6))   
+           
             # Grid hinzufügen 
             ax.grid(True,color="k")           
            
@@ -84,7 +85,7 @@ def create_scatter_plot_fuer_daten_und_ideale_funktionen(daten,
                 
                 farbenwahl_index += 1  
                 
-            # Visualisierung mit definierten Parametern einblenden    
+            # Visualisierung mit definierten Parametern einblenden  
             plt.title(titel)
             plt.xlabel('x')
             plt.ylabel('y')
