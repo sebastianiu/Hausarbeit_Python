@@ -12,100 +12,106 @@ from sqlalchemy.orm import declarative_base,relationship
 import os,sys
 from user_exceptions import DatabaseFileAlreadyExists
 
-def create_database_model(Datenbankname):
-    ''' 
-    Funktion zur Erstellung der SQLite-Datenbank-Datei und den erfoderlichen 
-    Tabellen
-    '''
-    try:
-        # Prüfen ob zu erstellende Datei bereits existiert
-        if os.path.exists(f'{Datenbankname}.db') == False:              
-            # Engine-Objekt erzeugen
-            engine = create_engine(f'sqlite:///{Datenbankname}.db',future = True,
-                                   echo = True)     
-            
-            Base = declarative_base()
-            
-            #Tabellen-Klassen definieren
-            class testdaten(Base):
-                __tablename__ = 'testdaten'            
-                x = Column(Float,primary_key=True)
-                y = Column(Float,primary_key=True)
-                delta_y = Column(Float)
-                funkt_nr = Column(String)   
+
+class Database:
+    def __init__(self,Datenbankname):
+        self.Datenbankname = Datenbankname
+    
+
+    def create_database_model(self):
+        ''' 
+        Funktion zur Erstellung der SQLite-Datenbank-Datei und den erfoderlichen 
+        Tabellen
+        '''
+        try:
+            # Prüfen ob zu erstellende Datei bereits existiert
+            if os.path.exists(f'{self.Datenbankname}.db') == False:              
+                # Engine-Objekt erzeugen
+                engine = create_engine(f'sqlite:///{self.Datenbankname}.db',future = True,
+                                       echo = True)     
                 
-            class trainingsdaten(Base):
-                __tablename__ = 'trainingsdaten'             
-                x = Column(Float,primary_key=True)            
-                y1 = Column(Float)
-                y2 = Column(Float)
-                y3 = Column(Float)
-                y4 = Column(Float)       
-         
-            class ideale_funktionen(Base):
-                __tablename__ = 'ideale_funktionen'           
-                x = Column(Float,primary_key=True)
-                y1 = Column(Float)
-                y2 = Column(Float)
-                y3 = Column(Float)
-                y4 = Column(Float)
-                y5 = Column(Float)
-                y6 = Column(Float)
-                y7 = Column(Float)
-                y8 = Column(Float)
-                y9 = Column(Float)
-                y10 = Column(Float)
-                y11 = Column(Float)
-                y12 = Column(Float)
-                y13 = Column(Float)
-                y14 = Column(Float)
-                y15 = Column(Float)
-                y16 = Column(Float)
-                y17 = Column(Float)
-                y18 = Column(Float)
-                y19 = Column(Float)
-                y20 = Column(Float)
-                y21 = Column(Float)
-                y22 = Column(Float)
-                y23 = Column(Float)
-                y24 = Column(Float)
-                y25 = Column(Float)
-                y26 = Column(Float)
-                y27 = Column(Float)
-                y28 = Column(Float)
-                y29 = Column(Float)
-                y30 = Column(Float)
-                y31 = Column(Float)
-                y32 = Column(Float)
-                y33 = Column(Float)
-                y34 = Column(Float)
-                y35 = Column(Float)
-                y36 = Column(Float)
-                y37 = Column(Float)
-                y38 = Column(Float)
-                y39 = Column(Float)
-                y40 = Column(Float)
-                y41 = Column(Float)
-                y42 = Column(Float)
-                y43 = Column(Float)
-                y44 = Column(Float)
-                y45 = Column(Float)
-                y46 = Column(Float)
-                y47 = Column(Float)
-                y48 = Column(Float)
-                y49 = Column(Float)
-                y50 = Column(Float)  
+                Base = declarative_base()
                 
-            #Alle Metadaten-Objekte (Tabellen) erzeugen
-            Base.metadata.create_all(engine)                  
-            print(f'\nNeue Datenbank-Datei {Datenbankname} erzeugt und ' 
-                  'Tabellen generiert.\n')  
-            
-                            
-        else:
-            raise DatabaseFileAlreadyExists           
-            
-    except DatabaseFileAlreadyExists:
-         print(DatabaseFileAlreadyExists().error_message)
+                #Tabellen-Klassen definieren
+                class Testdaten(Base):
+                    __tablename__ = 'Testdaten'            
+                    x = Column(Float,primary_key=True)
+                    y = Column(Float,primary_key=True)
+                    delta_y = Column(Float)
+                    funkt_nr = Column(String)   
+                    
+                class Trainingsdaten(Base):
+                    __tablename__ = 'Trainingsdaten'             
+                    x = Column(Float,primary_key=True)            
+                    y1 = Column(Float)
+                    y2 = Column(Float)
+                    y3 = Column(Float)
+                    y4 = Column(Float)       
+             
+                class Ideale_Funktionen(Base):
+                    __tablename__ = 'Ideale_Funktionen'           
+                    x = Column(Float,primary_key=True)
+                    y1 = Column(Float)
+                    y2 = Column(Float)
+                    y3 = Column(Float)
+                    y4 = Column(Float)
+                    y5 = Column(Float)
+                    y6 = Column(Float)
+                    y7 = Column(Float)
+                    y8 = Column(Float)
+                    y9 = Column(Float)
+                    y10 = Column(Float)
+                    y11 = Column(Float)
+                    y12 = Column(Float)
+                    y13 = Column(Float)
+                    y14 = Column(Float)
+                    y15 = Column(Float)
+                    y16 = Column(Float)
+                    y17 = Column(Float)
+                    y18 = Column(Float)
+                    y19 = Column(Float)
+                    y20 = Column(Float)
+                    y21 = Column(Float)
+                    y22 = Column(Float)
+                    y23 = Column(Float)
+                    y24 = Column(Float)
+                    y25 = Column(Float)
+                    y26 = Column(Float)
+                    y27 = Column(Float)
+                    y28 = Column(Float)
+                    y29 = Column(Float)
+                    y30 = Column(Float)
+                    y31 = Column(Float)
+                    y32 = Column(Float)
+                    y33 = Column(Float)
+                    y34 = Column(Float)
+                    y35 = Column(Float)
+                    y36 = Column(Float)
+                    y37 = Column(Float)
+                    y38 = Column(Float)
+                    y39 = Column(Float)
+                    y40 = Column(Float)
+                    y41 = Column(Float)
+                    y42 = Column(Float)
+                    y43 = Column(Float)
+                    y44 = Column(Float)
+                    y45 = Column(Float)
+                    y46 = Column(Float)
+                    y47 = Column(Float)
+                    y48 = Column(Float)
+                    y49 = Column(Float)
+                    y50 = Column(Float)  
+                    
+                #Alle Metadaten-Objekte (Tabellen) erzeugen
+                Base.metadata.create_all(engine)                  
+                print(f'\nNeue Datenbank-Datei {self.Datenbankname} erzeugt und ' 
+                      'Tabellen generiert.\n')  
+                
+                                
+            else:
+                raise DatabaseFileAlreadyExists           
+                
+        except DatabaseFileAlreadyExists:
+             print(DatabaseFileAlreadyExists().error_message)
         
             

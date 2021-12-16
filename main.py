@@ -33,18 +33,20 @@ else:
     pass    
  
 # SQLite-Datenbank erzeugen
-db.create_database_model(database)
+#db.create_database_model(database)
+database_operativ = db.Database(database)
+database_operativ.create_database_model()
     
 # Trainingsdaten und Daten zu idealen Funtkionen aus CSV auslesen und in \
 # Tabellen importieren  
-dp.import_data(dp.read_csv('ideal.csv'),'ideale_funktionen',database)
-dp.import_data(dp.read_csv('train.csv'),'trainingsdaten',database)
+dp.import_data(dp.read_csv('ideal.csv'),'Ideale_Funktionen',database)
+dp.import_data(dp.read_csv('train.csv'),'Trainingsdaten',database)
     
 # Trainingsdaten auslesen
-trainingsdaten = dp.read_data(database,'trainingsdaten','x','y1','y2','y3','y4')    
+trainingsdaten = dp.read_data(database,'Trainingsdaten','x','y1','y2','y3','y4')    
                                                       
 # Daten der idealen Funktionen auslesen
-daten_ideale_funktionen  = dp.read_data(database,'ideale_funktionen','x',
+daten_ideale_funktionen  = dp.read_data(database,'Ideale_Funktionen','x',
                                          *[f'y{i}' for i in range(1,51)])
     
 # Beste Passungen zwischen Trainingsdaten und ideal Funktionen ermitteln 
@@ -58,19 +60,19 @@ testdaten = dp.read_csv('test.csv')
 testdaten_validiert = dp.validate_testdata(daten_ideale_passungen,testdaten,
                                             daten_ideale_funktionen)  
   
-dp.import_data(testdaten_validiert,'testdaten',database) 
+dp.import_data(testdaten_validiert,'Testdaten',database) 
     
 # Trainingsdaten auslesen
-trainingsdaten = dp.read_data(database,'trainingsdaten','x','y1','y2','y3','y4')
+trainingsdaten = dp.read_data(database,'Trainingsdaten','x','y1','y2','y3','y4')
     
 # Validierte Testdaten auslesen
-testdaten_validiert = dp.read_data(database,'testdaten','x','y')
+testdaten_validiert = dp.read_data(database,'Testdaten','x','y')
     
 # Liste aller ermittelten idealen Funktionen erzeugen    
-liste_ermittelte_ideale_funktionen = set(list(dp.read_data(database,'testdaten',
+liste_ermittelte_ideale_funktionen = set(list(dp.read_data(database,'Testdaten',
                                                  'funkt_nr')['funkt_nr']))
 # Daten der idealen Funktionen auslesen
-daten_ideale_funktionen  = dp.read_data(database,'ideale_funktionen','x',
+daten_ideale_funktionen  = dp.read_data(database,'Ideale_Funktionen','x',
                                          *liste_ermittelte_ideale_funktionen)  
     
 # Trainingsdaten visualisieren
