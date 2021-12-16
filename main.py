@@ -37,6 +37,9 @@ else:
 database_operativ = db.Database(database)
 database_operativ.create_database_model()
     
+
+
+
 # Trainingsdaten und Daten zu idealen Funtkionen aus CSV auslesen und in \
 # Tabellen importieren  
 dp.import_data(dp.read_csv('ideal.csv'),'Ideale_Funktionen',database)
@@ -44,7 +47,8 @@ dp.import_data(dp.read_csv('train.csv'),'Trainingsdaten',database)
     
 # Trainingsdaten auslesen
 trainingsdaten = dp.read_data(database,'Trainingsdaten','x','y1','y2','y3','y4')    
-                                                      
+
+                                                     
 # Daten der idealen Funktionen auslesen
 daten_ideale_funktionen  = dp.read_data(database,'Ideale_Funktionen','x',
                                          *[f'y{i}' for i in range(1,51)])
@@ -89,6 +93,8 @@ dv.create_scatter_plot_fuer_daten_und_ideale_funktionen(testdaten_validiert,
                                     daten_ideale_funktionen,
                                     titel='Validierte Testdaten'
                                   )  
+
+
    
     
 

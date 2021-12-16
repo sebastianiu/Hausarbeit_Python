@@ -25,9 +25,9 @@ class Database:
         '''
         try:
             # Prüfen ob zu erstellende Datei bereits existiert
-            if os.path.exists(f'{self.Datenbankname}.db') == False:              
+            if os.path.exists(f'Datenbank\{self.Datenbankname}.db') == False:              
                 # Engine-Objekt erzeugen
-                engine = create_engine(f'sqlite:///{self.Datenbankname}.db',future = True,
+                engine = create_engine(f'sqlite:///Datenbank\{self.Datenbankname}.db',future = True,
                                        echo = True)     
                 
                 Base = declarative_base()

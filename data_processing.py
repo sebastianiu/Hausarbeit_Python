@@ -45,11 +45,11 @@ def import_data(data,table,databasename):
         if data.empty == False:            
             try:
                 # Prüfen, ob SQLite-Datenbank-Datei im Verzeichnis exitiert
-                if path.exists(f'{databasename}.db') == True: 
+                if path.exists(f'Datenbank\{databasename}.db') == True: 
                     
                     try:
                         # Mit SQLite-Datenbank verbinden
-                        engine = create_engine(f'sqlite:///{databasename}.db',
+                        engine = create_engine(f'sqlite:///Datenbank\{databasename}.db',
                                                future = True,echo = True)
                        
                         # Prüfen, ob Daten nicht schon vorhanden sind
@@ -88,9 +88,9 @@ def read_data(database,table,*columnames):
     '''
     try:
         # Prüfen, ob DB-Datei exisiert
-        if path.exists(f'{database}.db'):            
+        if path.exists(f'Datenbank\{database}.db'):            
             # Mit SQLite-Datenbank verbinden'''
-            engine = create_engine(f'sqlite:///{database}.db',future = True,
+            engine = create_engine(f'sqlite:///Datenbank\{database}.db',future = True,
                                    echo = True)   
             
             # Prüfen, ob auslesbare Daten vorhanden
