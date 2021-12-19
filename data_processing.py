@@ -237,17 +237,18 @@ def get_fits_with_least_square_method(trainingsdaten,daten_ideale_funktionen):
                       join_table['Abweichung'] = join_table[funktion_train] - \
                                                   join_table[funktion_ideal]
                  
-                  # Zeile mit höchster Abweichung selektieren und in Dataframe 
-                  # speichern
-                  Max_Abweichung =  join_table.loc[join_table['Abweichung'] == 
-                        max(join_table['Abweichung'])].iloc[0]['Abweichung']
-                  
-                  Tabelle_Ideale_Funktionen = Tabelle_Ideale_Funktionen.append(
-                                          {
-                                            'train_funktion' : funktion_train,
-                                            'ideal_funktion' : funktion_ideal,
-                                            'Max_Abweichung' : Max_Abweichung
-                                            },ignore_index=True)
+            # Zeile mit höchster Abweichung selektieren und in Dataframe 
+            # speichern
+            Max_Abweichung = pd.DataFrame(columns=['Max_Abweichung']) 
+            
+            Max_Abweichung =  Max_Abweichung.append({'Max_Abweichung':   
+                                    join_table.loc[join_table['Abweichung'] == 
+                                  max(join_table['Abweichung'])].iloc[0]['Abweichung']
+                            },ignore_index=True)
+                
+            #hMaximale Abweichung zur Tabelle mit idealen Passungen dazu mergen
+            Tabelle_Ideale_Funktionen = Tabelle_Ideale_Funktionen_tmp.merge(
+                                Max_Abweichung,how='cross')
             return Tabelle_Ideale_Funktionen 
         else:
             raise ue.DataFrameEmptyError

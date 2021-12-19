@@ -55,7 +55,10 @@ daten_ideale_funktionen  = dp.read_data(database,'Ideale_Funktionen','x',
     
 # Beste Passungen zwischen Trainingsdaten und ideal Funktionen ermitteln 
 daten_ideale_passungen = dp.get_fits_with_least_square_method(trainingsdaten,
-                                                     daten_ideale_funktionen) 
+                                                     daten_ideale_funktionen)
+
+print(daten_ideale_passungen)
+ 
 
 # Testdaten einlesen 
 testdaten = dp.read_csv('test.csv')   
@@ -93,7 +96,6 @@ dv.create_scatter_plot_fuer_daten_und_ideale_funktionen(testdaten_validiert,
                                     daten_ideale_funktionen,
                                     titel='Validierte Testdaten'
                                   )  
-
 
    
     
