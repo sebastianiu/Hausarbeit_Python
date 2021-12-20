@@ -39,7 +39,7 @@ class Database:
                     y = Column(Float,primary_key=True)
                     delta_y = Column(Float)
                     funkt_nr = Column(String)   
-                    
+                  
                 class Trainingsdaten(Base):
                     __tablename__ = 'Trainingsdaten'             
                     x = Column(Float,primary_key=True)            
@@ -47,7 +47,7 @@ class Database:
                     y2 = Column(Float)
                     y3 = Column(Float)
                     y4 = Column(Float)       
-             
+                
                 class Ideale_Funktionen(Base):
                     __tablename__ = 'Ideale_Funktionen'           
                     x = Column(Float,primary_key=True)
