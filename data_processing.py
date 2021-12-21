@@ -122,8 +122,7 @@ def get_fits_with_least_square_method(trainingsdaten,daten_ideale_funktionen):
     idealen Funktionen mit least suqare Methode zu ermittelt und 
     zusätzliche die maximale Abweichung je idealer Funktion zu den 
     Trainingsdaten speichert
-    '''
-    
+    '''    
     try:
         # Prüfen, ob Funktionsargumente Daten enthalten
         if trainingsdaten.empty == False \
@@ -215,26 +214,28 @@ def get_fits_with_least_square_method(trainingsdaten,daten_ideale_funktionen):
                                                             data_funktion_ideal.set_index('x'),
                                                             on='x',rsuffix='_ideal'
                                                          )
-                        join_table['quadr_abw'] =  join_table[f'{funktion_ideal}_ideal'] - join_table[funktion_train]#abs(join_table[f'{funktion_ideal}_ideal'] - join_table[funktion_train])
+                        join_table['quadr_abw'] =  (join_table[funktion_train] - join_table[f'{funktion_ideal}_ideal'])**2
                                                          
                     else:
                         join_table= data_funktion_train.join(
                                                         data_funktion_ideal.set_index('x'),
                                                         on='x'
                                                         )
-                        join_table['quadr_abw'] =  join_table[funktion_ideal] - join_table[funktion_train]       #abs(join_table[funktion_ideal] - join_table[funktion_train])       
+                        join_table['quadr_abw'] =  (join_table[funktion_train] - join_table[funktion_ideal])**2
             
                                
-                    # Max Abweichung je Trainingsdatenfunktion speichern        
-                    #Max_Abweichung[''] = join_table.loc[join_table['quadr_abw'] == max(join_table['quadr_abw'])].iloc[0]
-                    Selektion_tmp.append(join_table['quadr_abw'].loc[join_table['quadr_abw'] == max(join_table['quadr_abw'])].iloc[0])#{'quadr_abw':quadr_abw})   
+                    # Max Abweichung je Trainingsdatenfunktion speichern                   
+                    Selektion_tmp.append(join_table['quadr_abw'].loc[
+                        join_table['quadr_abw'] == 
+                        max(join_table['quadr_abw'])].iloc[0])
                
                 # Ideale Funktionen mit mit minimalster Abweichung ermitteln
                 Selektion_tmp = pd.DataFrame(Selektion_tmp)   
             
             
             #Maximale_Abweichung gesamt ermitteln
-            Maximale_Abweichung = Selektion_tmp.loc[Selektion_tmp[0] == max(Selektion_tmp[0])].iloc[0]
+            Maximale_Abweichung = Selektion_tmp.loc[Selektion_tmp[0] == 
+                                                max(Selektion_tmp[0])].iloc[0]
             
             #Maximale_Abweichung an Gesamtergebnisse joinen        
             Tabelle_Ideale_Funktionen = Tabelle_Ideale_Funktionen.merge(Maximale_Abweichung,how='cross')
@@ -257,15 +258,11 @@ def validate_testdata(ideale_passungen,testdaten,gesamtdaten_ideale_funktionen):
         if ideale_passungen.empty == False \
         and testdaten.empty == False  \
         and gesamtdaten_ideale_funktionen.empty == False:
-     
-            # Leerer DataFrame für Ergebnisse erzeugen
-           # Ergebnisdaten = pd.DataFrame(columns=['x','y','delta_y','funkt_nr'])                           
-                                    
-            # Maximale Abweichungen zwischen (einer) idealen Funktion und 
-            # Testdatensatz ermitteln
+               
+        # Maximale Abweichungen zwischen (einer) idealen Funktion und 
+        # Testdatensatz ermitteln
             
-            Liste_validierte_ideale_Funktionen = list()
-            
+            Liste_validierte_ideale_Funktionen = list()            
             Ergebnisdaten = pd.DataFrame(columns=['funkt_ideal','Max_Abweichung'])              
                        
             for i in range(0,len(ideale_passungen)):                 
@@ -283,8 +280,10 @@ def validate_testdata(ideale_passungen,testdaten,gesamtdaten_ideale_funktionen):
                                                                   how="inner")                                  
                             
                 #Abweichungen ermitteln
-                join_table['Delta_y'] = join_table[funktion_ideal] - join_table['y']#abs(join_table[funktion_ideal] - join_table['y'])
+                join_table['Delta_y'] = (join_table['y'] - join_table[funktion_ideal])**2
                 
+                #TEST
+                join_table.to_csv('delta_testdaten.csv')
                               
                 Max_Abweichung = join_table[
                 'Delta_y'].loc[join_table['Delta_y'] == max(join_table['Delta_y'])
@@ -294,11 +293,11 @@ def validate_testdata(ideale_passungen,testdaten,gesamtdaten_ideale_funktionen):
                                      'Max_Abweichung': Max_Abweichung
                                     },ignore_index=True)                
     
-                
                 if Max_Abweichung < np.sqrt(2) * ideale_passungen['Max_Delta'].iloc[0]:
                     Liste_validierte_ideale_Funktionen.append(funktion_ideal)
                 else:
                     continue 
+               
             
             '''
             # Ergebnis speichern

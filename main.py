@@ -9,7 +9,7 @@ Tutor: Stephan Fuehrer
 """
 
 # Passende Funktionen aus Modulen importieren
-import database as db
+import data as db
 import data_processing as dp    
 import data_visualization as dv
 
@@ -20,33 +20,32 @@ import fnmatch
 # gewünschter Namen der SQLite-Datenbank definieren    
 # database='db_hausarbeit_15'   
 
-database = 'DB1'
+database = 'DB2'
 
 file_directory = input(
                  'PROGRAMM ZUR HAUSARBEIT des Kurses Programmieren ' 
                  'mit Python (DLMDWPMP01)\n'
-                 '**************************************************************'
+                 '***********************************************************'
                  '**********\n'
                  'Bitte geben Sie das Verzeichnis an, aus dem die Datensätze '
                  'im CSV-Format geladen werden sollen (test.csv, train.csv, '
-                 'ideal.csv). Programm kann mit "exit" beendet werden.\n'               
+                 'ideal.csv). Programm kann mit "exit" beendet werden. '               
                  )
 
-if database == 'exit':
+if file_directory == 'exit':
     exit()
 else:
-    pass    
- 
-    
- 
+    pass   
+     
 # SQLite-Datenbank erzeugen
-#db.create_database_model(database)
-database_operativ = db.Database(database)
-database_operativ.create_database_model()
-    
+database_operativ = db.database()
+
+dp = db.data_processing()
+
+dp.import_data(f'{file_directory}ideal.csv','Ideale_Funktionen')
 
 
-
+'''
 # Trainingsdaten und Daten zu idealen Funtkionen aus CSV auslesen und in \
 # Tabellen importieren  
 dp.import_data(dp.read_csv(f'{file_directory}ideal.csv'),'Ideale_Funktionen',database)
@@ -80,7 +79,6 @@ print(testdaten_validiert)
 
 
 
-'''
 dp.import_data(testdaten_validiert,'Testdaten',database) 
     
 # Trainingsdaten auslesen

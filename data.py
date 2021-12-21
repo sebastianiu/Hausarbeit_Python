@@ -13,21 +13,24 @@ import os,sys
 import user_exceptions as ue
 
 
-class Database:
+class database:
     '''Funktion um eine SQLite-Datenbank/ -Veribdunung ,mittels Engine-Objekt zu erzeugen'''
     def __init__(self):
         self.connection = create_engine('sqlite:///Programmdatenbank.db', echo=False)   
        
-class data_processing(Database):
+class data_processing(database):
     
     def import_data(self,data,table,):    
         
         ''' Funktion zum Auslesen von Daten aus einer CSV-Datei und import in eine 
         SQLLite-DB-Tabelle 
         ''' 
-        data.to_sql(table,con=self.connection,if_exists='fail',index = False,
+        data.to_sql(name=table,con=self.connection,if_exists='fail',index = False,
                                                 index_label = 'recordid'
-                                                )        
+                                                )   
+        
+        
+    
        
         
 '''
