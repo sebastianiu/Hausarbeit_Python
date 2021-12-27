@@ -10,19 +10,12 @@ Tutor: Stephan Fuehrer
 
 # Passende Funktionen aus Modulen importieren
 import data as db
-import data_processing as dp    
 import data_visualization as dv
 
-import pandas as pd
-import numpy as np
-import fnmatch
-
-# gewünschter Namen der SQLite-Datenbank definieren    
-# database='db_hausarbeit_15'   
-
-database = 'DB2'
-
-file_directory = input(
+#Benutzer-Abfrage zu Verzeichnis, wo Datenfiels leigen
+file_directory = "E:/"
+'''
+input(
                  'PROGRAMM ZUR HAUSARBEIT des Kurses Programmieren ' 
                  'mit Python (DLMDWPMP01)\n'
                  '***********************************************************'
@@ -31,85 +24,64 @@ file_directory = input(
                  'im CSV-Format geladen werden sollen (test.csv, train.csv, '
                  'ideal.csv). Programm kann mit "exit" beendet werden. '               
                  )
+'''
 
 if file_directory == 'exit':
     exit()
-else:
+else:    
     pass   
      
-# SQLite-Datenbank erzeugen
+## SQLite-Datenbank erzeugen
 database_operativ = db.database()
 
+#Klasse für Datenverarbeitungsprozesse erzeugen
 dp = db.data_processing()
 
-dp.import_data(f'{file_directory}ideal.csv','Ideale_Funktionen')
+## Trainingsdaten und Daten zu idealen Funtkionen aus CSV auslesen 
+Daten_ideale_funktionen = dp.read_csv(f'{file_directory}ideal.csv')
+Trainingsdaten = dp.read_csv(f'{file_directory}train.csv')
+Testdaten = dp.read_csv(f'{file_directory}test.csv') 
 
+## Daten in Tabellen importieren 
+dp.import_data(Daten_ideale_funktionen,'Ideale_Funktionen')
+dp.import_data(Trainingsdaten,'Trainingsdaten')
 
-'''
-# Trainingsdaten und Daten zu idealen Funtkionen aus CSV auslesen und in \
-# Tabellen importieren  
-dp.import_data(dp.read_csv(f'{file_directory}ideal.csv'),'Ideale_Funktionen',database)
-dp.import_data(dp.read_csv(f'{file_directory}train.csv'),'Trainingsdaten',database)
-    
 # Trainingsdaten auslesen
-trainingsdaten = dp.read_data(database,'Trainingsdaten','x','y1','y2','y3','y4')    
-
-                                                     
+Trainingsdaten = dp.read_data('Trainingsdaten','x','y1','y2','y3','y4')  
+                                         
 # Daten der idealen Funktionen auslesen
-daten_ideale_funktionen  = dp.read_data(database,'Ideale_Funktionen','x',
-                                         *[f'y{i}' for i in range(1,51)])
+Daten_ideale_funktionen  = dp.read_data('Ideale_Funktionen','x',
+                                        *[f'y{i}' for i in range(1,51)])
 
-# Beste Passungen zwischen Trainingsdaten und ideal Funktionen ermitteln 
-daten_ideale_passungen = dp.get_fits_with_least_square_method(trainingsdaten,
-                                                    daten_ideale_funktionen)
+## Beste Passungen zwischen Trainingsdaten und ideal Funktionen ermitteln 
+Daten_ideale_passungen = dp.get_fits_with_least_square_method(Trainingsdaten,
+                                                    Daten_ideale_funktionen)
 
-print('*** Train-Delta***')
-print(daten_ideale_passungen)
-
-# Testdaten einlesen 
-testdaten = dp.read_csv(f'{file_directory}test.csv')  
-
-    
 # Testdaten mit Kriterium in U-Abschnitt 2 validieren    
-testdaten_validiert = dp.validate_testdata(daten_ideale_passungen,testdaten,
-                                            daten_ideale_funktionen)      
+ideale_Funktionen_validiert = dp.validate_testdata(Daten_ideale_passungen,Testdaten,
+                                            Daten_ideale_funktionen) 
+   
+# Daten der ermittelten idealen Funktionen auslesen
+Daten_ermittelte_ideale_funktionen  = dp.read_data('Ideale_Funktionen','x',*list(Daten_ideale_passungen['ideal_funktion']))  
 
-print('*** Testdaten-Delta***')
-print(testdaten_validiert)
-
-
-
-dp.import_data(testdaten_validiert,'Testdaten',database) 
-    
-# Trainingsdaten auslesen
-trainingsdaten = dp.read_data(database,'Trainingsdaten','x','y1','y2','y3','y4')
-    
-# Validierte Testdaten auslesen
-testdaten_validiert = dp.read_data(database,'Testdaten','x','y')
-    
-# Liste aller ermittelten idealen Funktionen erzeugen    
-liste_ermittelte_ideale_funktionen = set(list(dp.read_data(database,'Testdaten',
-                                                 'funkt_nr')['funkt_nr']))
-# Daten der idealen Funktionen auslesen
-daten_ideale_funktionen  = dp.read_data(database,'Ideale_Funktionen','x',
-                                         *liste_ermittelte_ideale_funktionen)  
-    
 # Trainingsdaten visualisieren
-dv.create_scatter_plot_fuer_daten_und_ideale_funktionen(trainingsdaten,
-                                    liste_ermittelte_ideale_funktionen,
-                                    daten_ideale_funktionen,
+dv.create_scatter_plot_fuer_daten_und_ideale_funktionen(Trainingsdaten,
+                                    list(Daten_ideale_passungen['ideal_funktion']),
+                                    Daten_ermittelte_ideale_funktionen,
                                     titel='Trainingsdaten & passende ideale '
                                     'Funktionen'
                                   )
-    
+
 # Testdaten visualisieren
-dv.create_scatter_plot_fuer_daten_und_ideale_funktionen(testdaten_validiert,
-                                  liste_ermittelte_ideale_funktionen,
-                                    daten_ideale_funktionen,
-                                    titel='Validierte Testdaten'
+dv.create_scatter_plot_fuer_daten_und_ideale_funktionen(Testdaten,
+                                  list(Daten_ideale_passungen['ideal_funktion']),
+                                    Daten_ermittelte_ideale_funktionen,
+                                    titel='Testdaten & ermittelte Ideal-Funktionen'
                                   )  
 
-'''
+
+
+
    
     
 

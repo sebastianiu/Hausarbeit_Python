@@ -9,48 +9,41 @@ Tutor: Stephan Fuehrer
 '''
 
 ''' Benutzerdefinierte Exceptions '''
-
-class DatabaseFileNotFoundError(FileNotFoundError):
-    ''' Exception, wenn abgefragte Datenbank-Datei nicht existiert '''
-    # Konstruktor definieren
-    def __init__(self):
-        # eine eigene Nachricht als Attribut definieren 
-        error_message = 'Datenbank-Datei wurde im vorgegebenen Verzeichnis \
-nicht gefunden.'
-        self.error_message = error_message    
-        
-class DatabaseFileAlreadyExists(OSError):
-    ''' Exception, wenn zu erzeugende Datenbank-Datei bereits existiert '''
-    # Konstruktor definieren
-    def __init__(self):
-        # eine eigene Nachricht als Attribut definieren 
-        error_message = 'Datenbank-Datei existiert im vorgegebenen Verzeichnis \
-bereits.'
-        self.error_message = error_message
         
 class DatabaseTableEmptyError(LookupError):
     ''' Exception wenn abgefragte Datenbank-Tabelle keine Daten enthält '''
     # Konstruktor definieren
-    def __init__(self):
+    def __init__(self,table):
         # eine eigene Nachricht als Attribut definieren 
-        error_message = 'Datenbank-Tabelle enthält keine Daten.'
+        error_message = f"""Exception: Datenbank-Tabelle "{table}" enthält keine Daten.
+        """
         self.error_message = error_message
         
 class DatabaseTableAlreadyFullError(LookupError):
     ''' Exception wenn Tabelle als Importziel bereits Daten enthält '''
     # Konstruktor definieren
-    def __init__(self):
+    def __init__(self,table):
         # eine eigene Nachricht als Attribut definieren 
-        error_message = 'Datenbank-Tabelle enthält bereits Daten.'
-        self.error_message = error_message      
+        error_message = f"""Exception: Datenbank-Tabelle "{table}" existiert bereits und enthält Daten.'        
+        """
+        self.error_message = error_message 
         
+class DatabaseTableNotExistsError(LookupError):
+    ''' Exception wenn Tabelle nicht existiert'''
+    # Konstruktor definieren
+    def __init__(self,table):
+        # eine eigene Nachricht als Attribut definieren 
+        error_message = f"""Exception: Datenbank-Tabelle "{table}" existiert nicht.
+        """
+        self.error_message = error_message        
         
 class DataFrameEmptyError(LookupError):
     ''' Exception wenn abgefragtes DataFrame keine Daten enthält '''
     # Konstruktor definieren
     def __init__(self):
         # eine eigene Nachricht als Attribut definieren 
-        error_message = 'DataFrame enthält keine Daten.'
+        error_message = """Exception: DataFrame enthält keine Daten.
+        """
         self.error_message = error_message        
         
 class WrongFileFormatError(KeyError):
@@ -58,8 +51,13 @@ class WrongFileFormatError(KeyError):
     # Konstruktor definieren
     def __init__(self):
         # eine eigene Nachricht als Attribut definieren 
-        error_message = 'Falsche Datei-Format, nur CSV erlaubt.'
+        error_message = """Exception: Falsche Datei-Format, nur CSV erlaubt.
+        """
         self.error_message = error_message
+        
+        
+        
+        
         
         
         
