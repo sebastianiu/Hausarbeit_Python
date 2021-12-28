@@ -56,7 +56,7 @@ Daten_ideale_funktionen  = dp.read_data('Ideale_Funktionen','x',
 Daten_ideale_passungen = dp.get_fits_with_least_square_method(Trainingsdaten,
                                                     Daten_ideale_funktionen)
 
-## 5) Passungen mit Testdaten validieren & Ergebnisse speichern  
+## 5) Passungen mit Testdaten validieren & Ergebnisse speichern
 ideale_Funktionen_validiert = dp.validate_testdata(Daten_ideale_passungen,Testdaten,
                                             Daten_ideale_funktionen) 
    
@@ -83,37 +83,3 @@ dv.create_scatter_plot(Testdaten,Liste_ideale_funktion,Daten_ermittelte_ideale_f
 dv.create_scatter_plot(Testdaten,ideale_Funktionen_validiert,Daten_ermittelte_ideale_funktionen,
                                     titel='Testdaten & valididierte Ideal-Funktionen'
                                   )  
-
-
-
-
-   
-    
-
-    
-    
-               
-                  
- 
-
-
-
-
-
-
-         
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

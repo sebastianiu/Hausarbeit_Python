@@ -102,5 +102,4 @@ def create_scatter_plot(daten,liste_ideale_funktionen,daten_ideale_funktionen,ti
             raise ue.ListEmptyError
     # Fehlermeldung zeigen, wenn keine Daten zur Visualisierung übergeben werden       
     except ue.ListEmptyError:
-        print(f'(create_scatter_plot "{titel}") {ue.ListEmptyError().error_message}')
-            
+        print(f'(create_scatter_plot "{titel}") {ue.ListEmptyError().error_message}') 

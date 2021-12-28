@@ -63,16 +63,3 @@ class WrongFileFormatError(KeyError):
         error_message = """Exception: Falsche Datei-Format, nur CSV erlaubt.
         """
         self.error_message = error_message
-        
-        
-        
-        
-        
-        
-        
-        
-        
-    
-    
-    
-    
