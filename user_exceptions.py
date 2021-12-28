@@ -44,10 +44,19 @@ class DataFrameEmptyError(LookupError):
         # eine eigene Nachricht als Attribut definieren 
         error_message = """Exception: DataFrame enthält keine Daten.
         """
-        self.error_message = error_message        
+        self.error_message = error_message
+
+class ListEmptyError(LookupError):
+    ''' Exception wenn abgefragte Liste keine Daten enthält '''
+    # Konstruktor definieren
+    def __init__(self):
+        # eine eigene Nachricht als Attribut definieren 
+        error_message = """Exception: Liste enthält keine Daten.
+        """
+        self.error_message = error_message         
         
 class WrongFileFormatError(KeyError):
-    ''' Exception wenn abgefragtes DataFrame keine Daten enthält '''
+    ''' Exception, wenn falsches Dateiformat an funktion übergeben wird '''
     # Konstruktor definieren
     def __init__(self):
         # eine eigene Nachricht als Attribut definieren 

@@ -14,6 +14,7 @@ import pandas as pd
 import fnmatch
 import numpy as np
 import os
+import sys
 
 class database:
     '''
@@ -29,37 +30,43 @@ class data_processing(database):
         Funktion zum Import von Daten eine parallel erzeugte SQLLite-DB-Tabelle  
         ''' 
         try:
-            if data.empty == False: 
+            if type(data) == pd.DataFrame and data.empty == False: 
                 try:
                    # Prüfen, ob Daten nicht schon vorhanden sind
                    with self.connection.connect() as con:
                        result = con.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
-                       table_names  = sorted(list(zip(*result))[0])
-                       if table not in table_names:
+                       if len(result) > 0:
+                           table_names  = sorted(list(zip(*result))[0])
+                           if table not in table_names:
+                               # Daten importieren und Tabelle neu erzeugen
+                               data.to_sql(name=table,con=self.connection,
+                                           if_exists='fail',index = False,
+                                                    index_label = 'recordid')   
+                               print(f'(import_data) Daten importiert und Tabelle "{table}" erzeugt.\n')
+                           else:
+                               result = con.execute(text(f'select * from {table}')) 
+                               if len(result.all()) == 0:
+                                   #Daten in existente Tabelle importieren
+                                   data.to_sql(name=table,con=self.connection,
+                                           if_exists='fail',index = False,
+                                                    index_label = 'recordid')   
+                                   print(f'(import_data) Daten in Tabelle "{table}" importiert.')    
+                               else: 
+                                   #Fehler: Tabelle existiert und enhtält Daten
+                                   raise ue.DatabaseTableAlreadyFullError(table)
+                       else:
                            # Daten importieren und Tabelle neu erzeugen
                            data.to_sql(name=table,con=self.connection,
-                                       if_exists='fail',index = False,
-                                                index_label = 'recordid')   
-                           print(f'(import_data) Daten importiert und Tabelle '
-                                 '{table} erzeugt.\n')
-                       else:
-                           result = con.execute(text(f'select * from {table}')) 
-                           if len(result.all()) == 0:
-                               #Daten in existente Tabelle importieren
-                               data.to_sql(name=table,con=self.connection,
-                                       if_exists='fail',index = False,
-                                                index_label = 'recordid')   
-                               print(f"(import_data) Daten in Tabelle '{table}' importiert.\n")    
-                           else: 
-                               #Fehler: Tabelle existiert und enhtält Daten
-                               raise ue.DatabaseTableAlreadyFullError(table)  
+                                           if_exists='fail',index = False,
+                                                    index_label = 'recordid')   
+                           print(f'(import_data) Daten importiert und Tabelle "{table}" erzeugt.')
+                                                        
                 except ue.DatabaseTableAlreadyFullError:
                     print(f'(import_data) {ue.DatabaseTableAlreadyFullError(table).error_message}')                  
             else:
                 raise ue.DataFrameEmptyError                
         except ue.DataFrameEmptyError:
-            print(f'(import_data) {ue.DataFrameEmptyError().error_message}')
-            
+            print(f'(import_data) {ue.DataFrameEmptyError().error_message}')            
             
     def read_data(self,table,*columnames):
         '''
@@ -69,30 +76,31 @@ class data_processing(database):
         try:        
             with self.connection.connect() as con:
                 result = con.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
-                table_names  = sorted(list(zip(*result))[0])
-                #Prüfen, ob Zieltabelle existiert
-                if table in table_names:  
-                    # Prüfen, ob auslesbare Daten vorhanden        
-                    try:
-                        #with self.connection.connect() as con:
-                        # Daten aus Tabelle abfragen
-                        result = con.execute(text(f'select * from {table}'))
-                        if len(result.all()) > 0:
-                            #Daten auslesen, wenn diese vorhanden sind
-                            data = pd.read_sql_table(table,self.connection,
-                                                         schema=None,index_col=None, 
-                                                    coerce_float=True, parse_dates=None, 
-                                                    columns=(columnames), chunksize=None
-                                                    )                    
-                            return data                
-                        else:
-                            #Fehler: Keine auslesbaren Daten vorhanden
-                            raise ue.DatabaseTableEmptyError(table)                     
-                    except ue.DatabaseTableEmptyError:
-                        print(f'(read_data) {ue.DatabaseTableEmptyError(table).error_message}')                      
-                else:
-                    #Fehler: Keine auslesbare Datenbanktabelle vorhanden
-                    raise ue.DatabaseTableNotExistsError(table)                           
+                if len(result) > 0:
+                    table_names  = sorted(list(zip(*result))[0])
+                    #Prüfen, ob Zieltabelle existiert
+                    if table in table_names:  
+                        # Prüfen, ob auslesbare Daten vorhanden        
+                        try:
+                            #with self.connection.connect() as con:
+                            # Daten aus Tabelle abfragen
+                            result = con.execute(text(f'select * from {table}'))
+                            if len(result.all()) > 0:
+                                #Daten auslesen, wenn diese vorhanden sind
+                                data = pd.read_sql_table(table,self.connection,
+                                                             schema=None,index_col=None, 
+                                                        coerce_float=True, parse_dates=None, 
+                                                        columns=(columnames), chunksize=None
+                                                        )                    
+                                return data                
+                            else:
+                                #Fehler: Keine auslesbaren Daten vorhanden
+                                raise ue.DatabaseTableEmptyError(table)                     
+                        except ue.DatabaseTableEmptyError:
+                            print(f'(read_data) {ue.DatabaseTableEmptyError(table).error_message}')                      
+                    else:
+                        #Fehler: Keine auslesbare Datenbanktabelle vorhanden
+                        raise ue.DatabaseTableNotExistsError(table)                           
         except ue.DatabaseTableNotExistsError:
             print(f'(read_data) {ue.DatabaseTableNotExistsError(table).error_message}')            
     
@@ -119,6 +127,7 @@ class data_processing(database):
                 raise FileNotFoundError
         except FileNotFoundError:
             print(f'(read_csv) Exception: Datei "{file}" nicht im Verzeichnis gefunden.') 
+            sys.exit(1)
            
     def get_fits_with_least_square_method(self,trainingsdaten,daten_ideale_funktionen):    
         ''' Funktion, um die vier besten Passungen zwischen Trainingsdaten und 
@@ -128,13 +137,14 @@ class data_processing(database):
         '''   
         try:
             # Prüfen, ob Funktionsargumente Daten enthalten
-            if trainingsdaten.empty == False \
+            if type(trainingsdaten) == pd.DataFrame and trainingsdaten.empty == False \
+               and type(daten_ideale_funktionen) == pd.DataFrame \
                and daten_ideale_funktionen.empty == False:
                 
                 # Leerer Dataframe für Selektions-Ergebnisse erzeugen
                 Tabelle_Ideale_Funktionen = pd.DataFrame(columns=['train_funktion', 
                                                                    'ideal_funktion', 
-                                                                    'quadr_abw']
+                                                                    'sum_delta_quadr']
                                                          )           
                               
                 # Zwei Listen aller Y-Spalten in Traininsgdaten und idealen 
@@ -185,22 +195,22 @@ class data_processing(database):
                         # Alle Abweichungen je Trainingsdatenfunktion speichern
                         Selektion_tmp.append({'train_funktion':funktion_train,
                                               'ideal_funktion': funktion_ideal,
-                                              'quadr_abw':quadr_abw})     
+                                              'sum_delta_quadr':quadr_abw})     
                 
                     # Ideale Funktionen mit mit minimalster Abweichung ermitteln
                     Selektion_tmp = pd.DataFrame(Selektion_tmp)
                     
                     Tabelle_Ideale_Funktionen = Tabelle_Ideale_Funktionen.append(
                             Selektion_tmp.loc[
-                                            Selektion_tmp['quadr_abw'] == 
-                                           min(Selektion_tmp['quadr_abw'])]
+                                            Selektion_tmp['sum_delta_quadr'] == 
+                                           min(Selektion_tmp['sum_delta_quadr'])]
                             ) 
                                     
                 ## maximale Abweichung der Trainingsdaten zu allen 4 ideale Funktionen
                 ## ermitteln    
                  
                 # leerer DataFrame für Zwischenergebnisse erzeugen
-                Zwischenergebnis = pd.DataFrame(columns=['train_funktion','ideal_funktion','quadr_abw'])     
+                Zwischenergebnis = pd.DataFrame(columns=['train_funktion','ideal_funktion','delta_quadr'])     
                     
                 #for funktion_train in trainingsdaten_y_spalten:
                 for funktion_train,funktion_ideal in list(zip(Tabelle_Ideale_Funktionen['train_funktion'],
@@ -215,21 +225,22 @@ class data_processing(database):
                     join_table= data_funktion_train.join(data_funktion_ideal.set_index('x'),
                                                             on='x',rsuffix='_ideal'
                                                                              )
-                    join_table['quadr_abw'] =  (join_table[funktion_train] - join_table[funktion_ideal])**2
+                    join_table['delta_quadr'] =  (join_table[funktion_train] - join_table[funktion_ideal])**2
                  
                     
                     Zwischenergebnis = Zwischenergebnis.append(
                                                 {
                                                 'train_funktion':funktion_train,
                                                 'ideal_funktion': funktion_ideal,
-                                                'quadr_abw':join_table['quadr_abw'].loc[
-                                                    join_table['quadr_abw'] == max(join_table['quadr_abw'])].iloc[0]                              
+                                                'delta_quadr':join_table['delta_quadr'].loc[
+                                                    join_table['delta_quadr'] == 
+                                        max(join_table['delta_quadr'])].iloc[0]                              
                                                 },ignore_index=True
                                                  )     
                        
                 #Maximale_Abweichung zwischen allen 4 Trainingsdaten u. zugeh. ideal. Funkt. anfügen   
-                Tabelle_Ideale_Funktionen['Max_Delta'] = Zwischenergebnis['quadr_abw'].loc[
-                    Zwischenergebnis['quadr_abw'] == max(Zwischenergebnis['quadr_abw'])].iloc[0]
+                Tabelle_Ideale_Funktionen['max_delta_quadr'] = Zwischenergebnis['delta_quadr'].loc[
+                    Zwischenergebnis['delta_quadr'] == max(Zwischenergebnis['delta_quadr'])].iloc[0]
                 
                 print('*** Beste Passungen ***')
                 print(Tabelle_Ideale_Funktionen)
@@ -250,26 +261,23 @@ class data_processing(database):
         '''    
         try:
             # Prüfen, ob alle Funktionsargumente Daten enthalten
-            if ideale_passungen.empty == False \
-            and testdaten.empty == False  \
+            if type(ideale_passungen) == pd.DataFrame \
+            and ideale_passungen.empty == False \
+            and type(testdaten) == pd.DataFrame and testdaten.empty == False \
+            and type(gesamtdaten_ideale_funktionen) == pd.DataFrame \
             and gesamtdaten_ideale_funktionen.empty == False:
                    
             # Maximale Abweichungen zwischen (einer) idealen Funktion und 
-            # Testdatensatz ermitteln
-                
+            # Testdatensatz ermitteln                
                 Liste_validierte_ideale_Funktionen = list()            
-                Ergebnisdaten = pd.DataFrame(columns=['ideal_funktion','Max_Abweichung'])              
+                Ergebnisdaten = pd.DataFrame(columns=['ideal_funktion','max_delta_quadr'])              
                            
-                #for i in range(0,len(ideale_passungen)):  
-                for funktion_ideal in list(ideale_passungen['ideal_funktion']):      
-                                                       
-                    # Werte der idealen funktion auslesen
-                    # funktion_ideal = ideale_passungen.loc[i].at['ideal_funktion']
+                for funktion_ideal in list(ideale_passungen['ideal_funktion']): 
                                 
                     # Trainingsdaten auslesen
                     data_funktion_ideal = gesamtdaten_ideale_funktionen.filter(
-                                                        items=['x',funktion_ideal]
-                                                                                )
+                                                    items=['x',funktion_ideal]
+                                                                            )
                     
                     # Tabellen über x mergen       
                     join_table = pd.merge(testdaten, data_funktion_ideal, on=["x"], 
@@ -278,25 +286,22 @@ class data_processing(database):
                     #Abweichungen ermitteln
                     join_table['Delta_y'] = (join_table['y'] - join_table[funktion_ideal])**2
                     
-                    #TEST
-                    join_table.to_csv('delta_testdaten.csv')
-                                  
                     Max_Abweichung = join_table[
                     'Delta_y'].loc[join_table['Delta_y'] == max(join_table['Delta_y'])
                                    ].iloc[0]   
                             
-                    Ergebnisdaten = Ergebnisdaten.append({'ideal_funktion': funktion_ideal,
-                                         'Max_Abweichung': Max_Abweichung
-                                        },ignore_index=True)         
+                    Ergebnisdaten = Ergebnisdaten.append({
+                                            'ideal_funktion':funktion_ideal,
+                                            'max_delta_quadr': Max_Abweichung},
+                                                ignore_index=True)         
                     
                     #Wenn Max_Abweichung M < als N*sqrt(2), dann füge Ideal-Funktion
                     # der Liste der validierten hinzu
-                    if Max_Abweichung < np.sqrt(2) * ideale_passungen['Max_Delta'].iloc[0]:
+                    if Max_Abweichung < np.sqrt(2) * ideale_passungen['max_delta_quadr'].iloc[0]:
                         Liste_validierte_ideale_Funktionen.append(funktion_ideal)
                     else:
-                        continue
-                    
-                    
+                        continue                    
+            
                 #Pro validierter Idealfunktion Tabelle erzeugen, die X,Y (Testdaten)
                 # und quadratische Abweichung Sowie Y-Wert der ideal-Funtkion 
                 # als Spalte enthält                
@@ -305,22 +310,19 @@ class data_processing(database):
                     for Ideal_Funktion_validiert in Liste_validierte_ideale_Funktionen:
                         
                             #Tabellenname erzeugen
-                            table = f'Testdaten_zu_{Ideal_Funktion_validiert}'
-                        
-                        
-                            #leere DataFrame für Ergebnisse
-                            Ergebnisdaten = pd.DataFrame(columns=['X','Y','Delta Y',Ideal_Funktion_validiert])  
+                            table = f'Testdaten_zu_{Ideal_Funktion_validiert}'   
                             
                             # Daten laden
-                            data_funktion_ideal = gesamtdaten_ideale_funktionen.filter(
-                                                            items=['x',Ideal_Funktion_validiert]
-                                                                                           )
+                            data_funktion_ideal = gesamtdaten_ideale_funktionen\
+                                .filter(items=['x',Ideal_Funktion_validiert])
+                            
                             # Tabellen über x mergen       
-                            join_table = pd.merge(testdaten, data_funktion_ideal, on=["x"], 
-                                                                          how="inner")
+                            join_table = pd.merge(testdaten, data_funktion_ideal,
+                                                  on=["x"],how="inner")
                             
                             #Abweichungen ermitteln
-                            join_table['Delta y'] = (join_table['y'] - join_table[Ideal_Funktion_validiert])**2
+                            join_table['Delta y'] = (join_table['y'] - 
+                                    join_table[Ideal_Funktion_validiert])**2
 
                             # Daten in Tabelle speichern
                             try:

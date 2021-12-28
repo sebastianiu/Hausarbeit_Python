@@ -8,14 +8,13 @@ Autor: Sebastian Kinnast Matrikelnr.: 32112741
 Tutor: Stephan Fuehrer
 """
 
-# Passende Funktionen aus Modulen importieren
+## Module importieren
 import data as db
 import data_visualization as dv
+import sys
 
-#Benutzer-Abfrage zu Verzeichnis, wo Datenfiels leigen
-file_directory = "E:/"
-'''
-input(
+## Benutzer-Abfrage zu Verzeichnis, wo Datenfiles, aus dem CSV-Dateien geladen werden sollen
+file_directory = input(
                  'PROGRAMM ZUR HAUSARBEIT des Kurses Programmieren ' 
                  'mit Python (DLMDWPMP01)\n'
                  '***********************************************************'
@@ -24,59 +23,65 @@ input(
                  'im CSV-Format geladen werden sollen (test.csv, train.csv, '
                  'ideal.csv). Programm kann mit "exit" beendet werden. '               
                  )
-'''
 
+# Wenn User "exit" eingibt, dann Programm beenden
 if file_directory == 'exit':
-    exit()
+    sys.exit()
 else:    
-    pass   
+    pass  
      
-## SQLite-Datenbank erzeugen
+## 1) Datenbank generieren
 database_operativ = db.database()
 
-#Klasse für Datenverarbeitungsprozesse erzeugen
+# Klasse für Datenverarbeitungsprozesse erzeugen
 dp = db.data_processing()
 
-## Trainingsdaten und Daten zu idealen Funtkionen aus CSV auslesen 
+## 2) Daten aus CSV auslesen 
 Daten_ideale_funktionen = dp.read_csv(f'{file_directory}ideal.csv')
 Trainingsdaten = dp.read_csv(f'{file_directory}train.csv')
 Testdaten = dp.read_csv(f'{file_directory}test.csv') 
 
-## Daten in Tabellen importieren 
+## 3) Daten in Tabellen importieren 
 dp.import_data(Daten_ideale_funktionen,'Ideale_Funktionen')
 dp.import_data(Trainingsdaten,'Trainingsdaten')
 
-# Trainingsdaten auslesen
+# Trainingsdaten aus Datenbanktabelle auslesen
 Trainingsdaten = dp.read_data('Trainingsdaten','x','y1','y2','y3','y4')  
                                          
-# Daten der idealen Funktionen auslesen
+# Daten der idealen Funktionen aus Datenbanktabelle auslesen
 Daten_ideale_funktionen  = dp.read_data('Ideale_Funktionen','x',
                                         *[f'y{i}' for i in range(1,51)])
 
-## Beste Passungen zwischen Trainingsdaten und ideal Funktionen ermitteln 
+## 4) Beste Passungen ermitteln 
 Daten_ideale_passungen = dp.get_fits_with_least_square_method(Trainingsdaten,
                                                     Daten_ideale_funktionen)
 
-# Testdaten mit Kriterium in U-Abschnitt 2 validieren    
+## 5) Passungen mit Testdaten validieren & Ergebnisse speichern  
 ideale_Funktionen_validiert = dp.validate_testdata(Daten_ideale_passungen,Testdaten,
                                             Daten_ideale_funktionen) 
    
-# Daten der ermittelten idealen Funktionen auslesen
-Daten_ermittelte_ideale_funktionen  = dp.read_data('Ideale_Funktionen','x',*list(Daten_ideale_passungen['ideal_funktion']))  
+#Liste der ermittelten idealen Funktionen erzeugen
+Liste_ideale_funktion = list(Daten_ideale_passungen['ideal_funktion'])
 
-# Trainingsdaten visualisieren
-dv.create_scatter_plot_fuer_daten_und_ideale_funktionen(Trainingsdaten,
-                                    list(Daten_ideale_passungen['ideal_funktion']),
+# Daten der ermittelten idealen Funktionen auslesen
+Daten_ermittelte_ideale_funktionen  = dp.read_data('Ideale_Funktionen','x',*Liste_ideale_funktion)  
+
+## 6) Daten visualisieren
+# Trainingsdaten mit ermittelten Ideal-Funktionen visualisieren
+dv.create_scatter_plot(Trainingsdaten,Liste_ideale_funktion,
                                     Daten_ermittelte_ideale_funktionen,
                                     titel='Trainingsdaten & passende ideale '
                                     'Funktionen'
                                   )
 
-# Testdaten visualisieren
-dv.create_scatter_plot_fuer_daten_und_ideale_funktionen(Testdaten,
-                                  list(Daten_ideale_passungen['ideal_funktion']),
-                                    Daten_ermittelte_ideale_funktionen,
+# Testdaten mit ermittelten Ideal-Funktionen visualisieren
+dv.create_scatter_plot(Testdaten,Liste_ideale_funktion,Daten_ermittelte_ideale_funktionen,
                                     titel='Testdaten & ermittelte Ideal-Funktionen'
+                                  )  
+
+# Testdaten mit validierten Ideal-Funktionen visualisieren
+dv.create_scatter_plot(Testdaten,ideale_Funktionen_validiert,Daten_ermittelte_ideale_funktionen,
+                                    titel='Testdaten & valididierte Ideal-Funktionen'
                                   )  
 
 
