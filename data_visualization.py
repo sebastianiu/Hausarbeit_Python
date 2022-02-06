@@ -8,12 +8,10 @@ Autor: Sebastian Kinnast Matrikelnr.: 32112741
 Tutor: Stephan Fuehrer
 '''
 
+# Module importieren
 import matplotlib.pyplot as plt
-import bokeh as bk
-import numpy as np
 import fnmatch
 import user_exceptions as ue
-import time as t
 import pandas as pd
 
 def create_scatter_plot(daten,liste_ideale_funktionen,daten_ideale_funktionen,titel): 
@@ -44,7 +42,7 @@ def create_scatter_plot(daten,liste_ideale_funktionen,daten_ideale_funktionen,ti
                     # Liste aller Y-Spalten erzeugen
                     y_spalten = fnmatch.filter(daten.columns,'y*')
                     
-                    # Alle Punkte der idealen Funktionen mit Zufallsfarben zeichnen
+                    # Alle Punkte aus den Daten zeichnen
                     for y_spalte in y_spalten:    
                              
                         # x-/y-Werte aus Datenbanktabelle auslesen

@@ -13,15 +13,15 @@ import data as db
 import data_visualization as dv
 import sys
 
-## Benutzer-Abfrage zu Verzeichnis, wo Datenfiles, aus dem CSV-Dateien geladen werden sollen
+## Benutzer-Abfrage zu Verzeichnis, aus dem CSV-Dateien geladen werden sollen
 file_directory = input(
                  'PROGRAMM ZUR HAUSARBEIT des Kurses Programmieren ' 
                  'mit Python (DLMDWPMP01)\n'
                  '***********************************************************'
                  '**********\n'
                  'Bitte geben Sie das Verzeichnis an, aus dem die Datensätze '
-                 'im CSV-Format geladen werden sollen (test.csv, train.csv, '
-                 'ideal.csv). Programm kann mit "exit" beendet werden. '               
+                 'im CSV-Format geladen werden sollen\n (test.csv, train.csv, '
+                 'ideal.csv).\n Programm kann mit "exit" beendet werden. '               
                  )
 
 # Wenn User "exit" eingibt, dann Programm beenden
@@ -80,6 +80,7 @@ dv.create_scatter_plot(Testdaten,Liste_ideale_funktion,Daten_ermittelte_ideale_f
                                   )  
 
 # Testdaten mit validierten Ideal-Funktionen visualisieren
-dv.create_scatter_plot(Testdaten,ideale_Funktionen_validiert,Daten_ermittelte_ideale_funktionen,
-                                    titel='Testdaten & valididierte Ideal-Funktionen'
+#dv.create_scatter_plot(Testdaten,ideale_Funktionen_validiert,Daten_ermittelte_ideale_funktionen,
+dv.create_scatter_plot( dp.read_data('Testdaten','x','y'),Liste_ideale_funktion,Daten_ermittelte_ideale_funktionen,
+                                    titel='validierte Testdaten & Ideal-Funktionen'
                                   )  

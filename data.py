@@ -7,6 +7,7 @@ Autor: Sebastian Kinnast Matrikelnr.: 32112741
 
 Tutor: Stephan Fuehrer
 '''
+## Module importieren
 from sqlalchemy import create_engine,text
 import user_exceptions as ue
 import pandas as pd
@@ -201,10 +202,12 @@ class data_processing(database):
                                                 join_table[funktion_ideal]
                                               )**2)
                         
-                        # Summe Abweichungen je Ideal-Funktion zwischen speichern
-                        Zwischenergebnis = Zwischenergebnis.append({'train_funktion':funktion_train,
-                                              'ideal_funktion': funktion_ideal,
-                                              'sum_delta_quadr':quadr_abw},ignore_index=True)     
+                        # Summe Abweichungen je Ideal-Funktion zwischenspeichern
+                        Zwischenergebnis = Zwischenergebnis.append({
+                                                'train_funktion':funktion_train,
+                                                'ideal_funktion': funktion_ideal,
+                                                'sum_delta_quadr':quadr_abw},
+                                                            ignore_index=True)     
                 
                     # Ideal-Funktionen mit minimalster Abweichung zu ermitteln                                    
                     Tabelle_Ideale_Funktionen = Tabelle_Ideale_Funktionen.append(
@@ -264,7 +267,7 @@ class data_processing(database):
                 
     def validate_testdata(self,ideale_passungen,testdaten,gesamtdaten_ideale_funktionen):   
         ''' 
-        Funktion um Testdaten zu validieren, d. h. ideale Funktionen ermitten, die 
+        Funktion um Testdaten zu validieren, d. h. ideale Funktionen ermitteln, die 
         das Kriterium in 2a erfüllen und mit  X-Y-Testdaten, Delta Y und y-Wert pro 
         idealer Funktion in eigene Tabelle schreiben
         '''    
@@ -279,11 +282,12 @@ class data_processing(database):
             # Maximale Abweichungen zwischen (einer) idealen Funktion und 
             # Testdatensatz ermitteln                
                 Liste_validierte_ideale_Funktionen = list()            
-                Ergebnisdaten = pd.DataFrame(columns=['ideal_funktion','max_delta_quadr'])              
+                Zwischenergebnis = pd.DataFrame(columns=['ideal_funktion','max_delta_quadr'])  
+                Testdaten_validiert = pd.DataFrame(columns=['x','y','Delta_y','funktion_ideal'])
                            
                 for funktion_ideal in list(ideale_passungen['ideal_funktion']): 
                                 
-                    # Trainingsdaten auslesen
+                    #Werte Ideal-Funktionen auslesen
                     data_funktion_ideal = gesamtdaten_ideale_funktionen.filter(
                                                     items=['x',funktion_ideal]
                                                                             )
@@ -294,80 +298,87 @@ class data_processing(database):
                                 
                     # Abweichungen ermitteln
                     join_table['Delta_y'] = (join_table['y'] - join_table[funktion_ideal])**2
+                    join_table['funktion_ideal'] = funktion_ideal 
+                     
+                    #Wenn X-Y-Paarung einzeln mit Deltas einzeln temp speichern
+                    Testdaten_validiert = pd.concat([Testdaten_validiert,join_table[
+                                        ['x','y','Delta_y','funktion_ideal']
+                                    ]])   
                     
                     Max_Abweichung = join_table[
                     'Delta_y'].loc[join_table['Delta_y'] == max(join_table['Delta_y'])
                                    ].iloc[0]   
                             
-                    Ergebnisdaten = Ergebnisdaten.append({
+                    Zwischenergebnis = Zwischenergebnis.append({
                                             'ideal_funktion':funktion_ideal,
                                             'max_delta_quadr': Max_Abweichung},
                                                 ignore_index=True)         
                     
-                    # Wenn Max_Abweichung M < als N*sqrt(2), dann füge Ideal-Funktion
-                    # der Liste der validierten hinzu
+                    # Wenn Max-Delta d. Testdaten zu Ideal < als Max-Detlas*sqrt(2),
+                    # dann füge Ideal-Funktion der Liste der vollst. validierten hinzu
                     if Max_Abweichung < np.sqrt(2) * ideale_passungen['max_delta_quadr'].iloc[0]:
                         Liste_validierte_ideale_Funktionen.append(funktion_ideal)
                     else:
-                        continue                    
-            
-                # Pro validierter Idealfunktion Tabelle erzeugen, die X,Y (Testdaten)
-                # und quadratische Abweichung sowie Y-Wert der ideal-Funtkion enthält  
-                if len(Liste_validierte_ideale_Funktionen) > 0:                
-                    for Ideal_Funktion_validiert in Liste_validierte_ideale_Funktionen:
-                        
-                            #Tabellenname erzeugen
-                            table = f'Testdaten_zu_{Ideal_Funktion_validiert}'   
+                        continue                     
+                    
+                # Einzeln gespeicherte Testdaten-Paare auf validierte eingenzen
+                #Testdaten_validiert = pd.DataFrame(columns=['x','y','Delta_y','funktion_ideal'])               
+                '''
+                Ergebnisdaten2 = Ergebnisdaten2.append(
+                            Ergebnisdaten2.loc[
+                                            Ergebnisdaten2['Delta_y'] <=  
+                                            np.sqrt(2) * ideale_passungen['max_delta_quadr'].iloc[0]
+                                            ]
+                            )
+                '''
+                Testdaten_validiert = Testdaten_validiert.loc[
+                                            Testdaten_validiert['Delta_y'] <=  
+                                            np.sqrt(2) * ideale_passungen['max_delta_quadr'].iloc[0]                                            ]
                             
-                            # Daten laden
-                            data_funktion_ideal = gesamtdaten_ideale_funktionen\
-                                .filter(items=['x',Ideal_Funktion_validiert])
-                            
-                            # Tabellen über x mergen       
-                            join_table = pd.merge(testdaten, data_funktion_ideal,
-                                                  on=["x"],how="inner")
-                            
-                            #Abweichungen ermitteln
-                            join_table['Delta y'] = (join_table['y'] - 
-                                    join_table[Ideal_Funktion_validiert])**2
-
-                            # Daten in Tabelle speichern
-                            try:
-                                # Prüfen, ob Daten nicht schon vorhanden sind                        
-                                with self.connection.connect() as con:
-                                   result = con.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
-                                   table_names  = sorted(list(zip(*result))[0])
-                                   if table not in table_names:
-                                       # Daten importieren und Tabelle neu erzeugen
-                                        join_table.to_sql(name=table,con=self.connection,
+                # Einzeln validierte X-/Y-Paarungen der Testdaten in Tabelle speichern               
+                try:
+                    # Prüfen, ob Daten nicht schon vorhanden sind                        
+                    with self.connection.connect() as con:
+                        result = con.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
+                        table_names  = sorted(list(zip(*result))[0])
+                        if 'Testdaten' not in table_names:
+                            # Daten importieren und Tabelle neu erzeugen
+                            Testdaten_validiert.to_sql(name='Testdaten',con=self.connection,
                                                    if_exists='fail',index = False,
                                                             index_label = 'recordid')  
-                                        print(f'(validate_testdata) Daten importiert und Tabelle {table} erzeugt.')
-                                   else:
-                                       result = con.execute(text(f'select * from {table}')) 
-                                       if len(result.all()) == 0:
-                                           #Daten in existente Tabelle importieren
-                                           join_table.to_sql(name=table,con=self.connection,
+                            print(f'(validate_testdata) Daten importiert und Tabelle'
+                                  ' "Testdaten" erzeugt.')
+                        else:
+                            result = con.execute(text(f'select * from "Testdaten"')) 
+                            if len(result.all()) == 0:
+                                #Daten in existente Tabelle importieren
+                                join_table.to_sql(name='Testdaten',con=self.connection,
                                                    if_exists='fail',index = False,
                                                             index_label = 'recordid')   
-                                           print(f'(validate_testdata) Daten in Tabelle "{table}" importiert.')    
-                                       else: 
-                                           #Fehler: Tabelle existiert und enhtält Daten
-                                           raise ue.DatabaseTableAlreadyFullError(table)  
-                            except ue.DatabaseTableAlreadyFullError:
-                                print(f'(validate_testdata) {ue.DatabaseTableAlreadyFullError(table).error_message}')  
-                            
-                    return Liste_validierte_ideale_Funktionen 
+                                print(f'(validate_testdata) Daten in '
+                                                 'Tabelle "{table}" importiert.')    
+                            else: 
+                                #Fehler: Tabelle existiert und enhtält Daten
+                                raise ue.DatabaseTableAlreadyFullError("Testdaten")  
+                except ue.DatabaseTableAlreadyFullError:
+                    print(f'(validate_testdata) {ue.DatabaseTableAlreadyFullError("Testdaten").error_message}')   
+                               
+            if len(Liste_validierte_ideale_Funktionen) == 0:
+                print('(validate_testdata) Keine ideale Funktion vollständig'
+                      ' validiert!') 
+                print('*** Abweichungen zu Testdatensatz ***')
+                print(Zwischenergebnis)
+                print('\n')
+                print(f'Anzahl Testdatenpaare validiert: {len(Testdaten_validiert)} von {len(testdaten)}')
                 
-                    print(f'*** validierte Ideale-Funktionen ***')
-                    print(Liste_validierte_ideale_Funktionen)
-                       
-                else:
-                    print('(validate_testdata) Keine ideale Funktion validiert !!') 
-                    print('*** Abweichungen zu Testdatensatz ***')
-                    print(Ergebnisdaten)
+                return Liste_validierte_ideale_Funktionen
+                
             else:
-                raise ue.DataFrameEmptyError                
+                print('(validate_testdata) Folgende Ideal-Funktionen wurde '
+                      'vollständig validiert')
+                print(Liste_validierte_ideale_Funktionen) 
+                
+                return Liste_validierte_ideale_Funktionen                         
                
         except ue.DataFrameEmptyError:
             print(f'(validate_testdata) {ue.DataFrameEmptyError().error_message}')     
